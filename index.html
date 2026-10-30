@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>坏女孩诞辰 ONLINE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=57">
+</head>
+<body>
+<div id="app">
+  <div class="bg-sky"></div>
+  <div class="bg-sea"></div>
+  <div class="bg-beach"></div>
+  <button id="btn-mute" class="mute-btn" title="音乐开关">♪</button>
+
+  <!-- ========== 场景 0：登录 ========== -->
+  <section id="scene-login" class="scene active">
+    <div class="panel panel-title">
+      <div class="panel-inner">
+        <div class="clouds"></div>
+        <h1 class="game-title"><span id="title-text"></span><span class="cursor">▌</span></h1>
+        <p class="game-sub">坏女孩诞辰 · 特别篇</p>
+        <label class="photo-upload" for="photo-input">
+          <div class="photo-slot" id="photo-slot"><span class="plus">+</span></div>
+          <p class="photo-hint" id="photo-hint">上传照片 · 创建玩家</p>
+        </label>
+        <input type="file" id="photo-input" accept="image/*" hidden>
+        <button class="pixel-btn" id="btn-enter" disabled>ENTER</button>
+      </div>
+    </div>
+    <div class="pixel-hero" id="pixel-hero"></div>
+  </section>
+
+  <!-- ========== 场景 1：抽卡 ========== -->
+  <!-- ========== 场景 1.5：抽卡 ========== -->
+  <section id="scene-gacha" class="scene">
+    <div class="gacha-photo-wall" id="gacha-photo-wall"></div>
+    <div class="panel">
+      <div class="panel-inner">
+        <h2 class="panel-h">【343家庭成员大点兵】</h2>
+        <p class="panel-p">根据关键词进行人物匹配，集齐343王国全体生物</p>
+        <div class="deck" id="deck"></div>
+        <p class="album-count" id="album-count">卡册 0 / 8</p>
+      </div>
+    </div>
+    <div class="gacha-actions hidden" id="gacha-actions">
+      <button class="pixel-btn" id="btn-redraw">千万别点</button>
+      <button class="pixel-btn" id="btn-to-map">前往坏女孩诞辰</button>
+    </div>
+    <!-- 手拉手团队舞台：点击已抽卡牌入队，人物出来排排站 -->
+    <div class="team-stage" id="team-stage">
+      <p class="team-title">· 手拉手全员舞台 ·</p>
+      <div class="team-row" id="team-row"></div>
+      <button class="pixel-btn team-toggle" id="btn-gacha-team" title="解锁的人物随叫随到，也能随时遣返">召唤全员</button>
+    </div>
+    <!-- 抽卡揭示层：卡背(关键词) → 翻面 → 人物 -->
+    <div class="reveal hidden" id="reveal">
+      <div class="reveal-card" id="reveal-card">
+        <!-- 卡背：关键词逐条展示 -->
+        <div class="reveal-face reveal-back-face" id="reveal-back">
+          <div class="back-mark">?</div>
+          <div class="keywords-box" id="keywords"></div>
+        </div>
+        <!-- 正面：人物展示 -->
+        <div class="reveal-face reveal-front-face" id="reveal-front">
+          <div class="reveal-avatar" id="reveal-avatar"></div>
+          <h3 class="reveal-name" id="reveal-name"></h3>
+          <p class="reveal-gift" id="reveal-gift"></p>
+        </div>
+      </div>
+      <button class="pixel-btn hidden" id="btn-reveal-flip">揭晓她是谁</button>
+      <button class="pixel-btn hidden" id="btn-reveal-ok">OK</button>
+    </div>
+  </section>
+
+  <!-- ========== 场景 2：坏女孩诞辰 · 地图（从上往下：云南之旅 → 北京重聚 → 坏女孩寿宴） ========== -->
+  <section id="scene-map" class="scene">
+    <div class="map-title panel"><div class="panel-inner">【坏女孩诞辰】</div></div>
+    <div class="map">
+      <svg class="map-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <path class="route-line" pathLength="100" d="M 26,27 C 46,33 68,43 79,49 C 84,57 64,63 50,67" />
+      </svg>
+      <div class="map-hint-start">从这开始 ↗</div>
+      <div class="map-node node-yunnan" data-target="yunnan">
+        <span class="node-step">①</span>
+        <div class="node-icon">⛰</div><div class="node-label">云南之旅</div>
+        <div class="node-done hidden" id="yunnan-done">✓</div>
+      </div>
+      <div class="map-node node-beijing" data-target="beijing">
+        <span class="node-step">②</span>
+        <div class="node-icon">🏠</div><div class="node-label">北京重聚</div>
+        <div class="node-done hidden" id="beijing-done">✓</div>
+      </div>
+      <div class="map-node node-banquet" data-target="banquet">
+        <span class="node-step">③</span>
+        <div class="node-icon">🎂</div><div class="node-label">坏女孩寿宴</div>
+        <div class="node-done hidden" id="banquet-done">✓</div>
+      </div>
+      <div class="map-egg" id="map-egg">🎤</div>
+      <div class="map-guide">体验路线：① 云南之旅 → ② 北京重聚 → ③ 坏女孩寿宴</div>
+      <!-- 随时召唤/遣返已解锁人物（与点兵页同一支队伍） -->
+      <div class="map-team" id="map-team">
+        <div class="team-row" id="team-row-map"></div>
+        <button class="pixel-btn team-toggle" id="btn-map-team" title="解锁的人物随叫随到，也能随时遣返">召唤全员</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 场景 3：KTV 彩蛋 · 声控《小狗毛之歌》 ========== -->
+  <section id="scene-ktv" class="scene">
+    <div class="ktv-room">
+      <div class="disco-ball"></div>
+      <div class="ktv-game">
+        <h2 class="ktv-h">【隐藏关卡 · KTV 演唱会】</h2>
+        <div class="ktv-stage" id="ktv-stage">
+          <div class="ktv-lyric" id="ktv-lyric">♪ 准备开嗓 ♪</div>
+          <div class="ktv-floor"></div>
+          <div class="ktv-ob-pool" id="ktv-ob-pool"></div>
+          <div class="ktv-cow" id="ktv-cow">🐮</div>
+          <div class="ktv-flag" id="ktv-flag">🏁</div>
+          <div class="ktv-flash" id="ktv-flash"></div>
+          <div class="ktv-rain" id="ktv-rain"></div>
+        </div>
+        <div class="ktv-meter">
+          <span class="ktv-mic" id="ktv-mic">🎤</span>
+          <div class="ktv-meter-bar"><i id="ktv-meter-fill"></i><em class="th-go"></em><em class="th-jump"></em></div>
+          <b class="ktv-level-num" id="ktv-level-num">00.00</b>
+        </div>
+        <div class="ktv-legend"><span><i class="dot go"></i> 唱起来才前进</span><span><i class="dot jump"></i> 高音才能跳</span></div>
+        <p class="ktv-tip" id="ktv-tip">点下面的按钮开麦——必须真的演唱《小狗毛之歌》，小牛才肯往前走！</p>
+        <div class="ktv-btns">
+          <button class="pixel-btn" id="btn-ktv-mic">🎤 开麦 · 演唱《小狗毛之歌》</button>
+          <button class="pixel-btn" id="btn-ktv-hold" hidden>按住 = 唱歌</button>
+          <button class="pixel-btn" id="btn-ktv-jump" hidden>高音跳！</button>
+        </div>
+        <div class="ktv-btns">
+          <button class="pixel-btn" id="btn-ktv-skip">跳过挑战 »</button>
+          <button class="pixel-btn" id="btn-ktv-back">返回地图</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 场景 3.5：北京重聚（第二关 · 占位通关页） ========== -->
+  <section id="scene-beijing" class="scene">
+    <div class="panel"><div class="panel-inner">
+      <h2 class="panel-h">【北京重聚】</h2>
+      <p class="panel-p">从西双版纳的雨林，到普洱的茶山，再到昆明的晚霞——<br>343主角团，北京到齐！</p>
+      <div class="bj-lineup" id="bj-lineup"></div>
+      <p class="panel-p">接下来，还有一件大事等着大家。</p>
+      <button class="pixel-btn" id="btn-beijing-done">完成重聚 · 前往坏女孩诞辰地图</button>
+    </div></div>
+  </section>
+
+  <!-- ========== 场景 4：坏女孩寿宴 ========== -->
+  <section id="scene-banquet" class="scene">
+    <div class="banquet-bg" id="banquet-bg"></div>
+
+    <!-- 步骤 1：选子场景（背景：主角团爬山/雨林/海边日落 卷轴动画） -->
+    <div class="bstep" data-step="venue">
+      <div class="venue-anim" id="venue-anim"></div>
+      <div class="panel"><div class="panel-inner">
+        <h2 class="panel-h">【坏女孩寿宴】</h2>
+        <p class="panel-p">请选择宴会场地</p>
+        <div class="venue-grid">
+          <button class="pixel-btn venue" data-venue="dorm"><img src="assets/venue-dorm.jpg" alt=""><span>宿舍</span></button>
+          <button class="pixel-btn venue" data-venue="wangbaochuan"><img src="assets/venue-wangbaochuan.jpg" alt=""><span>望宝川</span></button>
+          <button class="pixel-btn venue" data-venue="graduate"><img src="assets/venue-graduate.jpg" alt=""><span>研究生院</span></button>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- 步骤 2：选人物 -->
+    <div class="bstep hidden" data-step="chars">
+      <div class="panel"><div class="panel-inner">
+        <h2 class="panel-h">【宾客点名】</h2>
+        <p class="panel-p">请安排参席人员</p>
+        <div class="char-grid" id="char-grid"></div>
+        <button class="pixel-btn" id="btn-chars-ok">入席</button>
+      </div></div>
+    </div>
+
+    <!-- 步骤 3：生日致辞 · 顾里式 -->
+    <div class="bstep hidden" data-step="speech">
+      <div class="speech-stage">
+        <div class="speech-audience" id="speech-audience"></div>
+        <div class="speech-box" id="speech-box"></div>
+      </div>
+      <div class="panel"><div class="panel-inner">
+        <h2 class="panel-h">【生日致辞】</h2>
+        <p class="panel-p">今天我们来到这里……</p>
+        <button class="pixel-btn hidden" id="btn-speech-done">上蛋糕</button>
+      </div></div>
+    </div>
+
+    <!-- 步骤 4：蛋糕点蜡烛 -->
+    <div class="bstep hidden" data-step="cake">
+      <div class="cake-stage">
+        <div class="寿星" id="寿星">
+          <div class="寿星-face" id="寿星-face"></div>
+          <div class="寿星-msg" id="寿星-msg">寿星就位</div>
+        </div>
+        <div class="cake" id="cake">
+          <div class="candles"><i></i><i></i><i></i></div>
+          <div class="cake-body">🎂</div>
+        </div>
+      </div>
+      <div class="panel"><div class="panel-inner">
+        <p class="panel-p" id="cake-hint">点一下蛋糕，点燃蜡烛</p>
+        <button class="pixel-btn hidden" id="btn-blow">吹蜡烛</button>
+        <button class="pixel-btn hidden" id="btn-lights-off">关灯许愿</button>
+      </div></div>
+    </div>
+
+    <!-- 步骤 5：关灯祝福 -->
+    <div class="bstep hidden" data-step="bless">
+      <div class="dark-room"></div>
+      <div class="candle-glow"></div>
+      <div class="bless-bubbles" id="bless-bubbles"></div>
+      <button class="pixel-btn hidden" id="btn-bless-done">许愿时间</button>
+    </div>
+
+    <!-- 步骤 6：许愿信 -->
+    <div class="bstep hidden" data-step="letter">
+      <div class="letter-stage">
+        <div class="envelope" id="envelope"><div class="flap"></div><div class="letter-paper">愿</div><div class="seal hidden" id="seal">封</div></div>
+      </div>
+      <div class="panel"><div class="panel-inner">
+        <p class="panel-p" id="letter-hint">点击信封，拆开坏女孩的愿望</p>
+        <button class="pixel-btn hidden" id="btn-letter-done">礼成</button>
+      </div></div>
+    </div>
+
+    <!-- 步骤 7：全家福 -->
+    <div class="bstep hidden" data-step="finale">
+      <div class="panel"><div class="panel-inner">
+        <h2 class="panel-h">【全家福】</h2>
+        <label class="family-upload" for="family-input">
+          <div class="family-slot" id="family-slot"><span>＋ 点击替换合照</span></div>
+        </label>
+        <input type="file" id="family-input" accept="image/*" hidden>
+        <p class="final-bless" id="final-bless"></p>
+        <button class="pixel-btn" id="btn-back-map">返回地图</button>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- 通用像素对话框 -->
+  <div class="dialog-overlay hidden" id="dialog">
+    <div class="panel dialog-panel"><div class="panel-inner">
+      <h2 class="panel-h" id="dialog-title"></h2>
+      <p class="panel-p" id="dialog-text"></p>
+      <div class="dialog-btns">
+        <button class="pixel-btn" id="dialog-ok">DONE</button>
+        <button class="pixel-btn hidden" id="dialog-cancel">SKIP</button>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- 缺人话术弹窗 -->
+  <div class="miss-modal hidden" id="miss-modal">
+    <div class="miss-panel">
+      <h2 class="miss-h">【有人没到】</h2>
+      <div class="miss-list" id="miss-list"></div>
+      <div class="dialog-btns" style="justify-content:center">
+        <button class="pixel-btn" id="miss-ok">知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 照片灯箱 -->
+  <div class="lightbox hidden" id="lightbox">
+    <button class="lb-close" id="lb-close">✕</button>
+    <button class="lb-nav lb-prev" id="lb-prev">‹</button>
+    <button class="lb-nav lb-next" id="lb-next">›</button>
+    <img class="lb-img" id="lb-img" src="" alt="">
+    <div class="lb-counter" id="lb-counter"></div>
+  </div>
+
+  <!-- 通用卡牌弹窗（淘汰OUT / 眩晕环绕 / 逐个话术） -->
+  <div class="card-pop hidden" id="card-pop">
+    <div class="card-pop-inner" id="cp-inner">
+      <div class="card-pop-avatar" id="cp-avatar"></div>
+      <h3 class="card-pop-name" id="cp-name"></h3>
+      <p class="card-pop-line" id="cp-line"></p>
+      <div class="card-pop-stamp" id="cp-stamp">OUT</div>
+      <button class="pixel-btn" id="cp-ok">DONE</button>
+    </div>
+    <div class="orbit-layer" id="orbit-layer"></div>
+  </div>
+
+  <!-- ========== 宿舍 · 开门大吉挑战 ========== -->
+  <!-- 转场：通过以下挑战即可解锁该场景 -->
+  <div class="ktk-intro hidden" id="ktk-intro">
+    <p class="ktk-intro-line" id="ktk-intro-line">【通过以下挑战<br>即可解锁该场景】</p>
+    <p class="ktk-intro-sub">OPEN THE DOOR · 开门大吉</p>
+  </div>
+
+  <!-- 开门大吉游戏层 -->
+  <div class="ktk-game hidden" id="ktk-game">
+    <div class="ktk-stage">
+      <button class="pixel-btn stage-skip" id="ktk-skip" title="随时跳过，直接去入席">跳过挑战 »</button>
+      <button class="ktk-close" id="ktk-close" title="暂时跳过挑战">✕</button>
+      <h2 class="ktk-title" id="ktk-title">【开门大吉】</h2>
+
+      <!-- 三扇大门（沿用寝室门图像），中间为带门铃的主门 -->
+      <div class="ktk-doors" id="ktk-doors">
+        <div class="ktk-door"><div class="ktk-plate">三四三</div></div>
+        <div class="ktk-door center">
+          <div class="ktk-plate">三十三</div>
+          <button class="ktk-bell hidden" id="ktk-bell"><span>按门铃</span></button>
+        </div>
+        <div class="ktk-door"><div class="ktk-plate">山四山</div></div>
+      </div>
+
+      <!-- 规则逐行飘出 -->
+      <div class="ktk-rules" id="ktk-rules">
+        <p>欢迎来到开门大吉</p>
+        <p>你有 3 个技能：原音重现 · 歌名关键字提示 · 场外求助</p>
+        <p>每个技能只允许使用一次</p>
+        <p class="hl">当你准备好时，请按响门铃</p>
+      </div>
+
+      <!-- 播放指示（带漂浮音符） -->
+      <div class="ktk-playing hidden" id="ktk-playing">
+        <span class="ktk-note n1">♪</span><span class="ktk-note n2">♫</span><span class="ktk-note n3">♪</span>
+        正在播放旋律，听出是哪首歌了吗～
+      </div>
+
+      <!-- 三个技能 -->
+      <div class="ktk-skills locked" id="ktk-skills">
+        <button class="pixel-btn ktk-skill" data-skill="replay">原音重现</button>
+        <button class="pixel-btn ktk-skill" data-skill="hint">关键字提示</button>
+        <button class="pixel-btn ktk-skill" data-skill="help">场外求助</button>
+      </div>
+
+      <!-- 歌名选项（播放完毕后逐个出现） -->
+      <div class="ktk-options" id="ktk-options"></div>
+
+      <!-- 笨 / 真棒！盖章 -->
+      <div class="ktk-stamp" id="ktk-stamp">笨</div>
+
+      <!-- 技能气泡提示 -->
+      <div class="ktk-bubble hidden" id="ktk-bubble"></div>
+
+      <!-- 不起眼的作弊小按钮：场外求助挂断后出现，问完全部人消失 -->
+      <button class="ktk-cheat hidden" id="ktk-cheat">点我作弊</button>
+
+      <!-- 小猪（原音重现时出现 / 关键字提示时哼哼哼跑开） -->
+      <div class="ktk-pig hidden" id="ktk-pig">
+        <div class="ktk-pig-img"></div>
+        <span>小猪</span>
+      </div>
+
+      <!-- 答对后：进入下一关 / 挑战成功 -->
+      <div class="ktk-next hidden" id="ktk-next">
+        <button class="pixel-btn" id="btn-ktk-next">进入下一关</button>
+      </div>
+    </div>
+
+    <!-- 场外求助：坏女孩打电话 -->
+    <div class="ktk-phone hidden" id="ktk-phone">
+      <div class="ktk-phone-inner">
+        <div class="ktk-phone-head">
+          <div class="kph-avatar" id="kph-avatar"></div>
+          <p class="kph-status" id="kph-status">📞 坏女孩拿起了电话……</p>
+        </div>
+        <div class="kph-contacts hidden" id="kph-contacts">
+          <button class="pixel-btn kph-contact" data-contact="prince">【王子】</button>
+          <button class="pixel-btn kph-contact" data-contact="emperor">【吴皇】</button>
+          <button class="pixel-btn kph-contact" data-contact="guoshi">【国师】</button>
+        </div>
+        <div class="kph-talk hidden" id="kph-talk">
+          <div class="kph-talk-avatar" id="kph-talk-avatar"></div>
+          <p class="kph-talk-name" id="kph-talk-name"></p>
+          <p class="kph-talk-line" id="kph-talk-line"></p>
+          <button class="pixel-btn" id="kph-hangup">挂断</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 望宝川 · 别笑挑战 ========== -->
+  <!-- 挑战名：别笑，笑你也过不了第二关 -->
+  <div class="ktk-game hidden" id="wbc-game">
+    <div class="ktk-stage">
+      <button class="pixel-btn stage-skip" id="wbc-skip" title="随时跳过，直接去入席">跳过挑战 »</button>
+      <button class="ktk-close" id="wbc-close" title="暂时跳过挑战">✕</button>
+      <h2 class="ktk-title" id="wbc-title">【别笑 · 第一关】</h2>
+
+      <!-- 第一关：猜猜我是谁（计算题） -->
+      <div class="wbc-quiz" id="wbc-quiz">
+        <p class="wbc-quiz-name">第一关 · 猜猜我是谁</p>
+        <p class="wbc-quiz-q">计算：5 + 1 = ?</p>
+        <div class="ktk-options wbc-opts" id="wbc-opts"></div>
+      </div>
+
+      <!-- 第二关：黑头挑战（共 4 颗：鼻梁两侧 2 + 旺仔 1 + 背景仁兄 1） -->
+      <div class="wbc-heito hidden" id="wbc-heito">
+        <div class="wbc-hud">
+          <span class="wbc-count" id="wbc-count">待夹黑头数：4/4</span>
+          <button class="pixel-btn wbc-cheat-btn" id="wbc-cheat">帮我作弊</button>
+        </div>
+        <div class="wbc-photo" id="wbc-photo">
+          <img src="assets/heito.jpg" alt="帮王子夹黑头">
+          <!-- 鼻梁左右两侧（红框标注位） -->
+          <button class="wbc-dot" style="left:45%;top:20%" aria-label="黑头1"></button>
+          <button class="wbc-dot" style="left:52.5%;top:20%" aria-label="黑头2"></button>
+          <!-- 旺仔小人的鼻子 -->
+          <button class="wbc-dot" style="left:48.5%;top:63.5%" aria-label="旺仔黑头"></button>
+          <!-- 背景那位仁兄（低调） -->
+          <button class="wbc-dot far" style="left:82%;top:39%" aria-label="背景黑头"></button>
+          <div class="wbc-arrow hidden" id="wbc-arrow">▼</div>
+        </div>
+        <p class="wbc-tip">点击黑点，把黑头一根根夹出来</p>
+      </div>
+
+      <!-- 笨 / 真棒！盖章 -->
+      <div class="ktk-stamp" id="wbc-stamp">笨</div>
+
+      <!-- 全部夹完：去入席 -->
+      <div class="ktk-next hidden" id="wbc-next">
+        <button class="pixel-btn" id="btn-wbc-next">挑战成功 · 去入席</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 研究生院 · 欢乐斗地主（4人脚本化模拟：主角队 vs 发廊大师双手队） ========== -->
+  <div class="ktk-game hidden" id="ddz-game">
+    <div class="ktk-stage ddz-stage">
+      <button class="pixel-btn stage-skip" id="ddz-skip" title="随时跳过，直接去入席">跳过挑战 »</button>
+      <button class="ktk-close" id="ddz-close" title="暂时跳过挑战">✕</button>
+      <h2 class="ktk-title">【研究生院 · 欢乐斗地主】</h2>
+
+      <div class="ddz-table">
+        <!-- 上家：吴皇&国师（主角队） -->
+        <div class="ddz-seat ddz-seat-top" id="ddz-seat-1">
+          <span class="ddz-bubble hidden" id="ddz-bubble-1"></span>
+          <div class="ddz-avs"><span class="ddz-av" style="background-image:url('assets/emperor_face.png')"></span><span class="ddz-av" style="background-image:url('assets/guoshi_face.png')"></span></div>
+          <p class="ddz-name">吴皇 & 国师</p>
+          <p class="ddz-info">剩 <b id="ddz-cards-1">25</b> 张</p>
+          <p class="ddz-beans">💰 <b id="ddz-beans-1">100.0w</b></p>
+        </div>
+        <!-- 左：发廊大师·左手（发廊队） -->
+        <div class="ddz-seat ddz-seat-left" id="ddz-seat-0">
+          <span class="ddz-bubble hidden" id="ddz-bubble-0"></span>
+          <div class="ddz-avs"><span class="ddz-av ddz-salon-av"></span></div>
+          <p class="ddz-name">发廊大师·左手</p>
+          <p class="ddz-info">剩 <b id="ddz-cards-0">25</b> 张</p>
+          <p class="ddz-beans">💰 <b id="ddz-beans-0">100.0w</b></p>
+        </div>
+        <!-- 右：发廊大师·右手（发廊队） -->
+        <div class="ddz-seat ddz-seat-right" id="ddz-seat-2">
+          <span class="ddz-bubble hidden" id="ddz-bubble-2"></span>
+          <div class="ddz-avs"><span class="ddz-av ddz-salon-av flip"></span></div>
+          <p class="ddz-name">发廊大师·右手</p>
+          <p class="ddz-info">剩 <b id="ddz-cards-2">25</b> 张</p>
+          <p class="ddz-beans">💰 <b id="ddz-beans-2">100.0w</b></p>
+        </div>
+        <!-- 下家：坏女孩&王子（主角队 · 坏女孩组） -->
+        <div class="ddz-seat ddz-seat-bottom" id="ddz-seat-3">
+          <span class="ddz-bubble hidden" id="ddz-bubble-3"></span>
+          <div class="ddz-avs"><span class="ddz-av" style="background-image:url('assets/badgirl_face.png')"></span><span class="ddz-av" style="background-image:url('assets/prince_face.png')"></span></div>
+          <p class="ddz-name">坏女孩 & 王子</p>
+          <p class="ddz-info">剩 <b id="ddz-cards-3">25</b> 张</p>
+          <p class="ddz-beans">💰 <b id="ddz-beans-3">100.0w</b></p>
+        </div>
+        <!-- 牌桌中心：倍数 + 打出的牌 -->
+        <div class="ddz-center">
+          <p class="ddz-mult" id="ddz-mult">倍数 ×1</p>
+          <p class="ddz-phase" id="ddz-phase">四家欢乐豆 100w 起步</p>
+          <div class="ddz-played" id="ddz-played"><p class="ddz-play-hint">发牌后自动开始 · 坏女孩组必有神牌</p></div>
+        </div>
+        <span class="ddz-team-tag ddz-tag-hero">主角队</span>
+        <span class="ddz-team-tag ddz-tag-salon">发廊队</span>
+      </div>
+
+      <div class="ddz-actions" id="ddz-actions">
+        <button class="pixel-btn" id="btn-ddz-deal">发牌开局</button>
+        <button class="pixel-btn hidden" id="btn-ddz-skip">跳过对局</button>
+      </div>
+
+      <!-- 场外应援：先点发廊大师（左/右）锁定目标，再用三种武器扔他 -->
+      <div class="ddz-attack" id="ddz-attack">
+        <p class="ddz-attack-title">场外应援 · 点发廊大师锁定目标，然后开扔！</p>
+        <div class="ddz-attack-btns">
+          <button class="pixel-btn ddz-wpn" data-wpn="bucket" title="一桶凉水兜头浇下">💦 水桶</button>
+          <button class="pixel-btn ddz-wpn" data-wpn="tomato" title="烂番茄糊他一脸">🍅 烂番茄</button>
+          <button class="pixel-btn ddz-wpn" data-wpn="thumbs" title="朝下的大拇指 · 社死暴击">👎 朝下大拇指</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 胜利画面：四个主角仰天长啸 -->
+    <div class="ddz-win hidden" id="ddz-win">
+      <div class="ddz-win-box">
+        <h2 class="ddz-win-title">【大获全胜 · 大赢特赢】</h2>
+        <div class="ddz-roars">
+          <div class="ddz-roar" style="background-image:url('assets/badgirl.png')"><span class="roar-cry">嗷——！</span></div>
+          <div class="ddz-roar" style="background-image:url('assets/emperor.png')"><span class="roar-cry">呜哈哈——！</span></div>
+          <div class="ddz-roar" style="background-image:url('assets/prince.png')"><span class="roar-cry">耶——哈！</span></div>
+          <div class="ddz-roar" style="background-image:url('assets/guoshi.png')"><span class="roar-cry">哈哈哈——！</span></div>
+        </div>
+        <p class="ddz-win-sub">坏女孩组神牌加持 · 王炸镇场 · 主角队欢乐豆翻倍<br>发廊大师双手空空，含泪宣布：全员免费剪发一年</p>
+        <button class="pixel-btn" id="btn-ddz-win">挑战成功 · 去入席</button>
+      </div>
+      <div class="ddz-rain" id="ddz-rain"></div>
+    </div>
+  </div>
+
+  <!-- ========== 云南之旅 · 343像素冒险（iframe 隔离嵌入） ========== -->
+  <div class="adv-layer hidden" id="adv-layer">
+    <iframe id="adv-frame" title="343云南之旅" allow="autoplay"></iframe>
+    <button class="adv-back" id="adv-back" title="返回坏女孩诞辰">✕</button>
+  </div>
+</div>
+<script src="js/audio.js?v=57"></script>
+<script src="js/app.js?v=57"></script>
+</body>
+</html>

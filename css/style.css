@@ -1,0 +1,837 @@
+/* ===== 坏女孩诞辰 ONLINE · 像素复古风 ===== */
+:root{
+  --ink:#fff;
+  --panel-blue:#8a97d6;
+  --panel-blue-deep:#6f7fc4;
+  --panel-green:#3aa655;
+  --sky1:#7ec8f7; --sky2:#a8e6e0; --sea:#3fb8b8; --sand:#f7e3b0;
+  --px-font:'Press Start 2P', 'Courier New', monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--px-font);color:var(--ink);background:var(--sky1)}
+#app{position:relative;width:100%;height:100dvh;max-width:480px;margin:0 auto;overflow:hidden}
+
+/* ---- 背景：像素海滩 ---- */
+.bg-sky,.bg-sea,.bg-beach{position:absolute;left:0;width:100%;pointer-events:none}
+.bg-sky{top:0;height:45%;background:linear-gradient(180deg,#f9c98d 0%,#a8e0f0 45%,var(--sky1) 100%)}
+.bg-sea{top:45%;height:30%;background:
+  repeating-linear-gradient(0deg,rgba(255,255,255,.12) 0 4px,transparent 4px 12px),
+  linear-gradient(180deg,var(--sky2),var(--sea))}
+.bg-beach{bottom:0;height:25%;background:
+  repeating-linear-gradient(90deg,rgba(190,150,80,.25) 0 8px,transparent 8px 24px),
+  linear-gradient(180deg,#fbeec8,var(--sand))}
+
+/* ---- 场景切换 ---- */
+.scene{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;z-index:2}
+.scene.active{display:flex;animation:sceneIn .42s cubic-bezier(.2,.7,.2,1)}
+.scene.leaving{animation:sceneOut .22s ease-in forwards}
+@keyframes sceneIn{from{opacity:0;transform:translateY(10px) scale(.99)}to{opacity:1;transform:none}}
+@keyframes sceneOut{to{opacity:0;transform:translateY(-8px) scale(.99)}}
+/* 场景切换遮罩 */
+.scene-curtain{position:fixed;inset:0;background:#0a0e24;z-index:200;pointer-events:none;opacity:0;transition:opacity .3s ease}
+.scene-curtain.show{opacity:1}
+
+/* ---- 像素面板（参考图圆角白边蓝底） ---- */
+.panel{background:#f4f6f8;border-radius:26px;padding:10px;box-shadow:0 6px 0 rgba(60,80,140,.35);max-width:340px;width:100%}
+.panel-inner{background:var(--panel-blue);border:3px dashed rgba(255,255,255,.55);border-radius:16px;
+  padding:26px 18px;display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;position:relative;overflow:hidden}
+.panel-h{font-size:15px;line-height:1.6;text-shadow:2px 2px 0 var(--panel-blue-deep)}
+.panel-p{font-size:10px;line-height:1.9;opacity:.95}
+.game-title{font-size:26px;line-height:1.5;text-shadow:3px 3px 0 var(--panel-blue-deep)}
+.game-sub{font-size:10px;letter-spacing:2px}
+.clouds{position:absolute;inset:auto 0 0 0;height:34px;background:
+  repeating-linear-gradient(90deg,rgba(255,255,255,.5) 0 10px,transparent 10px 26px);opacity:.5}
+
+/* ---- 像素按钮（阶梯角） ---- */
+.pixel-btn{
+  font-family:var(--px-font);font-size:12px;color:var(--ink);background:#2b3a67;
+  border:3px solid #fff;padding:12px 20px;cursor:pointer;letter-spacing:1px;position:relative;overflow:hidden;
+  clip-path:polygon(0 6px,6px 6px,6px 0,calc(100% - 6px) 0,calc(100% - 6px) 6px,100% 6px,100% calc(100% - 6px),calc(100% - 6px) calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,6px calc(100% - 6px),0 calc(100% - 6px));
+  background-clip:padding-box;text-shadow:2px 2px 0 rgba(0,0,0,.35);
+  box-shadow:inset 0 0 0 3px rgba(255,255,255,.15),inset 0 3px 0 rgba(255,255,255,.22),0 4px 0 rgba(0,0,0,.25);
+  transition:transform .12s cubic-bezier(.34,1.56,.64,1),box-shadow .12s,filter .12s;
+}
+.pixel-btn:hover{filter:brightness(1.15)}
+.pixel-btn:active{transform:translateY(3px) scale(.96);box-shadow:inset 0 0 0 3px rgba(255,255,255,.15),inset 0 3px 0 rgba(255,255,255,.22),0 1px 0 rgba(0,0,0,.25)}
+.pixel-btn:disabled{opacity:.4;pointer-events:none}
+/* 按钮点击涟漪 */
+.pixel-btn .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.5);transform:scale(0);animation:rippleOut .5s ease-out;pointer-events:none}
+@keyframes rippleOut{to{transform:scale(4);opacity:0}}
+
+/* ---- 登录 ---- */
+#scene-login{overflow:hidden}
+#scene-login::before{
+  content:'';position:absolute;inset:-3%;z-index:-1;
+  background:url('../assets/bg-beach.jpg') center/cover;image-rendering:pixelated;
+  animation:bgDrift 24s steps(48) infinite alternate;
+}
+@keyframes bgDrift{from{transform:translate(0,0) scale(1)}to{transform:translate(-2%,1.5%) scale(1.05)}}
+.cursor{animation:blink .7s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.mute-btn{
+  position:absolute;top:12px;right:12px;z-index:100;font-family:var(--px-font);font-size:13px;
+  width:40px;height:40px;background:var(--panel-blue);color:#fff;border:3px solid #fff;border-radius:10px;
+  cursor:pointer;text-shadow:1px 1px 0 rgba(0,0,0,.3);
+}
+.mute-btn.off{opacity:.45;text-decoration:line-through}
+#btn-enter:not(:disabled){animation:breathe 1s steps(2) infinite}
+@keyframes breathe{50%{filter:brightness(1.35)}}
+.photo-upload{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer}
+.photo-slot{width:88px;height:88px;border:3px dashed #fff;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:rgba(255,255,255,.12);position:relative}
+.photo-slot .plus{font-size:28px;opacity:.8;transition:opacity .3s}
+.photo-slot.loading .plus{opacity:0}
+.photo-slot img{width:100%;height:100%;object-fit:cover;animation:photoDevelop .6s steps(12)}
+/* 像素化扫描显影 */
+.photo-slot.loading::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 0%,#fff 50%,transparent 100%);animation:scanLine .5s steps(8) infinite}
+@keyframes scanLine{from{transform:translateY(-100%)}to{transform:translateY(100%)}}
+@keyframes photoDevelop{from{filter:brightness(3) contrast(0);clip-path:inset(0 0 100% 0)}to{filter:none;clip-path:inset(0)}}
+.photo-hint{font-size:9px;opacity:.85;line-height:1.6}
+.pixel-hero{position:absolute;bottom:6%;right:8%;width:56px;height:72px;animation:bob 1.2s steps(2) infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+/* ---- 抽卡 ---- */
+.deck{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:6px auto;width:280px;max-width:86vw}
+.card-back{position:relative;aspect-ratio:3/4;border:3px solid #fff;border-radius:8px;min-width:0;background:
+  repeating-linear-gradient(45deg,var(--panel-blue-deep) 0 6px,var(--panel-blue) 6px 12px);
+  display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:transform .15s cubic-bezier(.34,1.56,.64,1),box-shadow .15s;position:relative}
+.card-back:hover{transform:translateY(-6px) scale(1.04);box-shadow:0 8px 16px rgba(0,0,0,.3)}
+.card-back:active{transform:translateY(-2px) scale(.97)}
+.card-back.drawn{opacity:.95;cursor:pointer;background:var(--panel-green);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;animation:cardDrawn .4s cubic-bezier(.34,1.56,.64,1)}
+.card-back.drawn:hover{transform:translateY(-4px) scale(1.03);box-shadow:0 4px 0 #1a5c2a,0 0 12px rgba(149,255,106,.5)}
+.card-back.drawn:active{transform:translateY(-2px) scale(.98)}
+.card-back.drawn::after{content:'✓';position:absolute;top:2px;right:4px;font-size:10px;color:#fff;text-shadow:1px 1px 0 #1a5c2a}
+.card-back.pig-mode{background:#f7a8c0!important;animation:pigWiggle .4s ease-in-out infinite}
+.card-back.pig-mode::after{content:'🐷';top:1px;right:3px;font-size:11px;text-shadow:none}
+@keyframes pigWiggle{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+.pixel-btn:disabled{opacity:.5;cursor:not-allowed}
+@keyframes cardDrawn{from{transform:rotateY(90deg) scale(.6)}to{transform:none}}
+.card-back .mini-face{width:40px;height:50px;background-size:cover!important;background-position:top center!important;border:2px solid #fff;border-radius:6px;image-rendering:pixelated}
+.card-back.drawn span{font-size:7px;line-height:1.3;max-width:100%;overflow:hidden}
+.album-count{font-size:10px;letter-spacing:1px}
+.gacha-actions{position:absolute;bottom:132px;display:flex;gap:14px;z-index:3}
+.gacha-actions.hidden{display:none}
+.reveal{position:absolute;inset:0;background:rgba(20,30,70,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:9;backdrop-filter:blur(4px)}
+.reveal.hidden{display:none}
+.reveal::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(255,216,102,.15),transparent 60%);animation:revealGlow 1.5s ease-in-out infinite}
+@keyframes revealGlow{0%,100%{opacity:.5}50%{opacity:1}}
+/* 3D 翻面卡牌容器 */
+.reveal-card{width:min(82%,290px);height:340px;position:relative;z-index:1;transform-style:preserve-3d;transition:transform .9s cubic-bezier(.34,1.56,.64,1)}
+.reveal-card.flipped{transform:rotateY(180deg)}
+.reveal-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:22px;overflow:hidden;display:flex;flex-direction:column}
+/* 卡背 */
+.reveal-back-face{background:var(--panel-blue);border:3px dashed rgba(255,255,255,.55);padding:18px;align-items:center;gap:14px}
+.back-mark{font-family:var(--px-font);font-size:56px;color:rgba(255,255,255,.28);line-height:1}
+.keywords-box{display:flex;flex-direction:column;gap:9px;width:100%}
+.keyword{font-family:var(--px-font);font-size:11px;color:#fff;background:rgba(255,255,255,.14);padding:9px 10px;border-radius:8px;text-align:center;animation:kwIn .45s ease both;line-height:1.4}
+@keyframes kwIn{from{opacity:0;transform:translateY(10px) scale(.9)}to{opacity:1;transform:none}}
+/* 正面（人物） */
+.reveal-front-face{transform:rotateY(180deg);background:#f4f6f8;padding:8px}
+.reveal-avatar{height:190px;border-radius:14px 14px 0 0;background-size:cover;background-position:center top;image-rendering:pixelated;display:flex;align-items:flex-end;justify-content:center}
+/* 二次查看：展示完整（全身）照片 */
+.reveal-avatar.full{height:290px;background-size:contain;background-position:center center;background-repeat:no-repeat;background-color:#1a2140;border-radius:14px}
+.reveal-name{background:var(--panel-blue);font-size:15px;padding:14px 0 6px;text-align:center;text-shadow:2px 2px 0 var(--panel-blue-deep)}
+.reveal-gift{background:var(--panel-blue);font-size:9px;line-height:1.9;padding:0 16px 14px;text-align:center}
+.reveal .pixel-btn{z-index:1}
+
+/* ---- 地图（从上往下：云南之旅 → 北京重聚 → 坏女孩寿宴，依次展示 + 引导线路） ---- */
+.map-title{position:absolute;top:5%;z-index:3}
+.map-title .panel-inner{padding:14px;font-size:14px}
+.map{position:absolute;inset:0;z-index:2}
+/* 引导线路：金色流动虚线，从①到③ */
+.map-route{position:absolute;inset:0;width:100%;height:100%;z-index:1;opacity:0;animation:fadeIn .6s 1.35s forwards}
+.route-line{fill:none;stroke:#ffd866;stroke-width:3.5;stroke-linecap:round;
+  stroke-dasharray:.01 3.99;vector-effect:non-scaling-stroke;
+  filter:drop-shadow(0 0 5px rgba(255,216,102,.6));animation:routeFlow 1s linear infinite}
+@keyframes routeFlow{to{stroke-dashoffset:-4}}
+@keyframes fadeIn{to{opacity:1}}
+/* 站点序号 ①②③ */
+.node-step{position:absolute;top:9px;left:-22px;width:19px;height:19px;border-radius:50%;
+  background:#ffd866;color:#5a4a00;font-size:10px;font-style:normal;line-height:17px;text-align:center;
+  border:2px solid #fff;box-shadow:0 2px 0 rgba(0,0,0,.3);z-index:2}
+/* “从这开始”提示 */
+.map-hint-start{position:absolute;left:10%;top:37%;font-family:var(--px-font);font-size:9px;
+  background:#ff6ad5;color:#fff;border:2px solid #fff;border-radius:8px;padding:5px 8px;white-space:nowrap;
+  box-shadow:0 3px 0 rgba(0,0,0,.35);z-index:3;opacity:0;animation:hintIn .45s 1.6s cubic-bezier(.34,1.56,.64,1) forwards, bob 1.6s 2.05s ease-in-out infinite}
+@keyframes hintIn{from{opacity:0;transform:translateY(12px) scale(.6)}to{opacity:1;transform:none}}
+/* 体验路线指引横幅 */
+.map-guide{position:absolute;left:50%;bottom:3.5%;translate:-50% 0;font-family:var(--px-font);font-size:8px;
+  background:#ffd866;color:#5a4a00;border:2px solid #fff;border-radius:8px;padding:6px 10px;white-space:nowrap;
+  box-shadow:0 3px 0 rgba(0,0,0,.35);z-index:3;opacity:0;animation:hintIn .45s 1.8s cubic-bezier(.34,1.56,.64,1) forwards}
+.map-node{--nd:0s;position:absolute;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;z-index:2;
+  animation:nodeEnter .5s var(--nd) cubic-bezier(.34,1.56,.64,1) both, bob 1.6s calc(var(--nd) + .5s) ease-in-out infinite;
+  transition:transform .15s cubic-bezier(.34,1.56,.64,1)}
+@keyframes nodeEnter{from{opacity:0;transform:translateY(-18px) scale(.4)}to{opacity:1;transform:none}}
+.map-node:hover{transform:scale(1.12)}
+.map-node:active{transform:scale(.92)}
+.node-icon{font-size:38px;filter:drop-shadow(3px 3px 0 rgba(0,0,0,.25));transition:filter .2s}
+.map-node:hover .node-icon{filter:drop-shadow(0 0 12px rgba(255,216,102,.8)) drop-shadow(3px 3px 0 rgba(0,0,0,.25))}
+.node-label{font-size:9px;background:var(--panel-blue);border:2px solid #fff;border-radius:8px;padding:6px 8px;white-space:nowrap;transition:all .2s}
+.map-node:hover .node-label{background:#ffd866;color:#5a4a00;text-shadow:none}
+.node-yunnan{--nd:0s;left:19%;top:24%}
+.node-beijing{--nd:.55s;right:13%;top:46%}
+.node-banquet{--nd:1.1s;left:50%;top:63%;translate:-50% 0}
+.node-banquet .node-icon{font-size:52px}
+.node-banquet .node-step{top:16px}
+.map-egg{position:absolute;right:6%;bottom:5%;font-size:26px;opacity:.55;cursor:pointer;z-index:3}
+
+/* ---- KTV ---- */
+#scene-ktv{background:#1a1030}
+#scene-ktv::before{content:'';position:absolute;inset:0;background:url('../assets/ktv-windsor.jpg') center/cover;image-rendering:pixelated}
+#scene-ktv .ktv-room{z-index:2}
+.ktv-room{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+.disco-ball{position:absolute;top:10%;left:50%;transform:translateX(-50%);width:70px;height:70px;border-radius:50%;
+  background:conic-gradient(#ff6ad5,#6ad5ff,#ffe66a,#95ff6a,#ff6ad5);animation:spin 3s steps(12) infinite;
+  box-shadow:0 0 60px 20px rgba(255,106,213,.35)}
+@keyframes spin{to{transform:translateX(-50%) rotate(360deg)}}
+/* ---- KTV 声控小游戏：《小狗毛之歌》 ---- */
+.ktv-game{position:relative;z-index:2;width:min(94vw,540px);max-height:96vh;overflow-y:auto;display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px}
+.ktv-h{font-family:var(--px-font);font-size:13px;color:#ffd76a;text-shadow:0 0 8px #ff6ad5,2px 2px 0 #5a2a8a;margin-bottom:2px}
+.ktv-stage{position:relative;width:100%;height:38vh;min-height:230px;max-height:330px;overflow:hidden;border:3px solid #c5a868;border-radius:10px;
+  background:linear-gradient(180deg,#12082a 0%,#2b1055 46%,#3d1d6e 54%,#1b0f38 100%);box-shadow:0 0 24px rgba(255,106,213,.25),inset 0 0 30px rgba(0,0,0,.5)}
+.ktv-floor{position:absolute;left:0;right:0;bottom:26px;height:3px;background:#ff6ad5;box-shadow:0 0 8px #ff6ad5}
+.ktv-lyric{position:absolute;top:8px;left:0;right:0;text-align:center;font-family:var(--px-font);font-size:13px;color:#ffd76a;
+  text-shadow:0 0 6px #ff6ad5,2px 2px 0 #5a2a8a;z-index:2;white-space:nowrap}
+.ktv-lyric.pulse{animation:ktvPulse .5s ease}
+@keyframes ktvPulse{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+.ktv-cow{position:absolute;left:22%;bottom:26px;font-size:42px;line-height:1;filter:drop-shadow(3px 3px 0 rgba(0,0,0,.45));will-change:transform;z-index:2}
+.ktv-cow.run{animation:ktvRun .35s ease-in-out infinite alternate}
+@keyframes ktvRun{from{transform:translateY(0) rotate(-4deg)}to{transform:translateY(-3px) rotate(4deg)}}
+.ktv-ob{position:absolute;left:0;bottom:29px;font-size:30px;line-height:1;filter:drop-shadow(2px 2px 0 rgba(0,0,0,.45));will-change:transform}
+.ktv-flag{position:absolute;left:0;bottom:22px;font-size:34px;z-index:1}
+.ktv-flash{position:absolute;inset:0;background:#ff3355;opacity:0;pointer-events:none;z-index:3}
+.ktv-flash.on{animation:ktvFlash .5s ease}
+@keyframes ktvFlash{0%,60%{opacity:.4}100%{opacity:0}}
+.ktv-rain{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:3}
+.ktv-rain i{position:absolute;top:-24px;font-size:16px;animation:ktvRain 2.4s linear infinite}
+@keyframes ktvRain{to{transform:translateY(110%) rotate(360deg)}}
+.ktv-meter{display:flex;align-items:center;gap:8px;width:100%;justify-content:center}
+.ktv-mic{font-size:16px}
+.ktv-mic.off{filter:grayscale(1);opacity:.6}
+.ktv-meter-bar{position:relative;width:46%;max-width:210px;height:14px;background:#0b182f;border:2px solid #c5a868;border-radius:7px;overflow:hidden}
+.ktv-meter-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#4ade80,#ffd866 55%,#ff6ad5)}
+.ktv-meter-bar em{position:absolute;top:-2px;bottom:-2px;width:2px;background:#fff;opacity:.75}
+.ktv-meter-bar .th-go{left:26%}
+.ktv-meter-bar .th-jump{left:62%}
+.ktv-level-num{font-family:var(--px-font);font-size:11px;color:#4ade80;min-width:38px}
+.ktv-legend{display:flex;gap:16px;font-family:var(--px-font);font-size:8px;color:#cfd8ff}
+.ktv-legend .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:3px;vertical-align:-1px}
+.ktv-legend .dot.go{background:#4ade80}
+.ktv-legend .dot.jump{background:#ff6ad5}
+.ktv-tip{font-family:var(--px-font);font-size:9px;line-height:1.7;text-align:center;color:#ffe5a0;min-height:30px}
+.ktv-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.ktv-btns .pixel-btn[hidden]{display:none!important}
+
+/* ---- 寿宴通用 ---- */
+#scene-banquet{background:#241d3d}
+.banquet-bg{position:absolute;inset:0;background-position:center;background-size:cover;image-rendering:pixelated;opacity:0;transition:opacity .5s;z-index:0}
+.banquet-bg::after{content:'';position:absolute;inset:0;background:rgba(20,16,48,.28)}
+.banquet-bg.show{opacity:1}
+.bstep{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:18px;z-index:2;animation:stepIn .4s cubic-bezier(.2,.7,.2,1)}
+.bstep.hidden{display:none}
+@keyframes stepIn{from{opacity:0;transform:translateX(24px);filter:blur(2px)}to{opacity:1;transform:none;filter:none}}
+.venue-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%}
+.venue{position:relative;padding:0;aspect-ratio:1;overflow:hidden;font-size:9px;transition:transform .15s cubic-bezier(.34,1.56,.64,1),box-shadow .2s}
+.venue:hover{transform:scale(1.05)}
+.venue:active{transform:scale(.96)}
+.venue img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;image-rendering:pixelated;transition:transform .3s}
+.venue:hover img{transform:scale(1.1)}
+.venue span{position:absolute;left:0;right:0;bottom:0;background:rgba(20,24,60,.62);padding:5px 2px;text-align:center;transition:background .2s}
+.venue.sel{border-color:#ffd76a;box-shadow:0 0 0 4px rgba(255,215,106,.4),0 0 20px rgba(255,215,106,.7);transform:scale(1.05);z-index:2}
+.venue.sel span{background:rgba(255,215,106,.85);color:#5a4a00}
+.venue.sel::after{content:'✓';position:absolute;top:4px;right:6px;font-size:12px;color:#ffd76a;text-shadow:1px 1px 0 #5a4a00;z-index:2}
+.char-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%}
+.char-chip{font-family:var(--px-font);font-size:9px;padding:10px 6px;border:2px solid #fff;border-radius:8px;background:rgba(255,255,255,.1);color:#fff;cursor:pointer;line-height:1.5;transition:all .15s cubic-bezier(.34,1.56,.64,1);position:relative}
+.char-chip:hover{transform:translateY(-2px);background:rgba(255,255,255,.2)}
+.char-chip:active{transform:scale(.94)}
+.char-chip.on{background:#ffd866;color:#5a4a00;text-shadow:none;transform:scale(1.03);box-shadow:0 0 12px rgba(255,216,102,.5)}
+.char-chip.on::after{content:'✓';position:absolute;top:2px;right:6px;font-size:10px;color:#5a4a00}
+
+/* 坏女孩变猪 */
+.char-chip.pig{color:transparent !important;border-color:#f7a8c0;box-shadow:0 0 18px rgba(247,168,192,.9);animation:pigShake .35s ease-in-out infinite;overflow:hidden}
+@keyframes pigShake{0%,100%{transform:rotate(-4deg) scale(1.06)}50%{transform:rotate(4deg) scale(1.06)}}
+
+/* 配角被丢下：out 动画 */
+.char-chip.out{animation:chipOut 1.1s ease-in-out forwards}
+.char-chip.out::before{content:'OUT';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:bold;color:#ff3b3b;text-shadow:0 0 6px #fff;background:rgba(255,255,255,.72);z-index:2;animation:outStamp .3s ease-out .2s both}
+@keyframes chipOut{0%{transform:none}20%{transform:translateX(-6px) rotate(-3deg)}40%{transform:translateX(6px) rotate(3deg)}60%{transform:translateX(-4px) rotate(-2deg)}80%{transform:translateX(4px) rotate(2deg)}100%{transform:none;opacity:.45}}
+@keyframes outStamp{from{transform:scale(2.2);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* 缺人话术弹窗 */
+.miss-modal{position:fixed;inset:0;background:rgba(20,30,70,.72);display:flex;align-items:center;justify-content:center;z-index:100;padding:24px;backdrop-filter:blur(4px)}
+.miss-modal.hidden{display:none}
+.miss-panel{background:var(--panel-blue);border:3px dashed rgba(255,255,255,.55);border-radius:16px;padding:18px;max-width:340px;width:100%;animation:dialogIn .35s cubic-bezier(.34,1.56,.64,1)}
+.miss-h{font-family:var(--px-font);font-size:13px;color:#ffd866;text-align:center;margin:0 0 14px}
+.miss-list{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
+.miss-item{display:flex;gap:12px;align-items:center;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.3);border-radius:10px;padding:10px}
+.miss-portrait{width:56px;height:56px;border-radius:8px;background-size:cover;background-position:center top;border:2px solid #fff;flex-shrink:0;image-rendering:pixelated}
+.miss-line{font-family:var(--px-font);font-size:10px;color:#fff;line-height:1.5}
+
+/* 通用卡牌弹窗（淘汰/变猪/话术） */
+.card-pop{position:fixed;inset:0;background:rgba(20,30,70,.78);display:flex;align-items:center;justify-content:center;z-index:120;padding:24px;backdrop-filter:blur(5px)}
+.card-pop.hidden{display:none}
+.card-pop-inner{background:var(--panel-blue);border:3px dashed rgba(255,255,255,.55);border-radius:18px;padding:14px;width:min(82%,300px);display:flex;flex-direction:column;gap:0;position:relative;animation:cardFlip .5s cubic-bezier(.34,1.56,.64,1)}
+.card-pop-avatar{height:240px;border-radius:12px 12px 0 0;background-size:cover;background-position:center top;image-rendering:pixelated;transition:background-image .4s ease}
+.card-pop-avatar.morph{animation:pigMorph .5s ease-in-out}
+@keyframes pigMorph{0%{transform:scale(1) rotate(0)}30%{transform:scale(1.12) rotate(-6deg)}60%{transform:scale(.92) rotate(6deg)}100%{transform:scale(1) rotate(0)}}
+.card-pop-name{font-family:var(--px-font);font-size:15px;color:#fff;text-align:center;padding:12px 0 6px;text-shadow:2px 2px 0 var(--panel-blue-deep)}
+.card-pop-line{font-family:var(--px-font);font-size:10px;color:#fff;line-height:1.7;text-align:center;padding:0 14px 14px;min-height:24px}
+.card-pop-stamp{position:absolute;top:30%;left:50%;transform:translate(-50%,-50%) rotate(-18deg) scale(0);font-family:var(--px-font);font-size:42px;font-weight:bold;color:#ff2d2d;text-shadow:0 0 8px #fff,0 0 16px rgba(255,45,45,.6);z-index:5;pointer-events:none;letter-spacing:2px}
+.card-pop-stamp.show{animation:stampIn .5s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes stampIn{0%{transform:translate(-50%,-50%) rotate(-18deg) scale(3);opacity:0}70%{transform:translate(-50%,-50%) rotate(-18deg) scale(.9);opacity:1}100%{transform:translate(-50%,-50%) rotate(-18deg) scale(1);opacity:1}}
+.card-pop-inner .pixel-btn{align-self:center;margin:6px 16px 14px}
+
+/* 宾客环绕坏女孩旋转 */
+.orbit-layer{position:absolute;inset:0;pointer-events:none}
+.orbit-mini{position:absolute;top:50%;left:50%;width:48px;height:58px;margin:-29px 0 0 -24px;border-radius:8px;border:2px solid #fff;background-size:cover;background-position:center top;image-rendering:pixelated;box-shadow:0 0 10px rgba(0,0,0,.45)}
+@keyframes orbit{from{transform:rotate(0deg) translateX(112px) rotate(0deg)}to{transform:rotate(360deg) translateX(112px) rotate(-360deg)}}
+
+/* 坏女孩被绕晕：卡牌摇晃倒下 */
+.card-pop-inner.dizzy{animation:dizzyFall 1.9s ease-in forwards}
+@keyframes dizzyFall{0%{transform:rotate(0)}12%{transform:rotate(-9deg)}24%{transform:rotate(8deg)}36%{transform:rotate(-7deg)}48%{transform:rotate(6deg)}60%{transform:rotate(-4deg)}72%{transform:rotate(3deg)}84%{transform:rotate(-2deg)}100%{transform:rotate(86deg) translateY(55px);opacity:.35}}
+
+/* 被强制勾选的主角：锁定 */
+.char-chip.locked{position:relative}
+.char-chip.locked::before{content:'🔒';position:absolute;top:3px;left:5px;font-size:9px;z-index:1}
+
+/* 锁定角色被点击取消：勃然小怒（参考橘猫表情包：生气 + 小拳头） */
+.char-chip.angry{animation:angryShake .55s ease-in-out;background:#ffd0d0 !important;color:#8a0000 !important;box-shadow:0 0 14px rgba(255,60,60,.7)}
+.char-chip.angry::after{content:'✊';position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:13px;color:#8a0000;z-index:2}
+.angry-label{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-family:var(--px-font);font-size:10px;color:#fff;background:#ff2d2d;padding:2px 6px;border-radius:5px;white-space:nowrap;z-index:3;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+@keyframes angryShake{0%,100%{transform:translateX(0) rotate(0)}20%{transform:translateX(-5px) rotate(-2deg)}40%{transform:translateX(5px) rotate(2deg)}60%{transform:translateX(-4px) rotate(-1deg)}80%{transform:translateX(4px) rotate(1deg)}}
+
+/* 生日致辞 · 顾里式 */
+.speech-stage{display:flex;flex-direction:column;align-items:center;gap:18px;min-height:200px;width:100%}
+.speech-audience{display:flex;gap:12px;align-items:flex-end;justify-content:center;flex-wrap:wrap;min-height:70px}
+.speech-audience .guest{width:52px;height:64px;background-size:cover;background-position:center top;border:2px solid #fff;border-radius:8px;image-rendering:pixelated;animation:guestIn .4s cubic-bezier(.34,1.56,.64,1) both}
+.speech-audience .guest.bounce{animation:guestIn .4s cubic-bezier(.34,1.56,.64,1) both, guestBob 1.2s ease-in-out infinite}
+@keyframes guestIn{from{transform:translateY(30px) scale(0);opacity:0}to{transform:none;opacity:1}}
+@keyframes guestBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.speech-box{background:rgba(255,255,255,.12);border:2px dashed #fff;border-radius:12px;padding:16px 18px;min-height:80px;width:100%;max-width:320px;position:relative}
+.speech-line{font-size:11px;line-height:2;color:#fff;text-shadow:2px 2px 0 rgba(0,0,0,.3);opacity:0;transform:translateY(8px);transition:all .3s}
+.speech-line.show{opacity:1;transform:none}
+.speech-line.highlight{color:#ffd866;font-size:13px}
+.speech-cursor{display:inline-block;width:8px;height:14px;background:#ffd866;animation:blink .6s steps(1) infinite;margin-left:2px;vertical-align:middle}
+@keyframes blink{50%{opacity:0}}
+
+/* 蛋糕 */
+.cake{font-size:90px;position:relative;cursor:pointer;text-align:center;filter:drop-shadow(4px 4px 0 rgba(0,0,0,.2));transition:transform .15s}
+.cake:hover{transform:scale(1.05)}
+.cake:active{transform:scale(.95)}
+.cake-body{line-height:1;transition:filter .3s}
+.cake.lit .cake-body{filter:drop-shadow(0 0 20px rgba(255,184,48,.5))}
+.candles{position:absolute;top:-26px;left:0;right:0;display:flex;justify-content:center;gap:18px}
+.candles i{width:6px;height:24px;background:#fff;display:block;position:relative}
+.candles i::after{content:'';position:absolute;top:-10px;left:-3px;width:12px;height:12px;border-radius:50%;background:transparent;transition:all .3s}
+.cake.lit .candles i::after{background:#ffb830;box-shadow:0 0 14px 6px rgba(255,184,48,.7);animation:flick .3s steps(2) infinite}
+.cake.lit .candles i:nth-child(2)::after{animation-delay:.1s}
+.cake.lit .candles i:nth-child(3)::after{animation-delay:.2s}
+@keyframes flick{50%{transform:scale(.8)}}
+/* 火花粒子 */
+.spark{position:absolute;width:4px;height:4px;background:#ffd866;border-radius:50%;pointer-events:none;animation:sparkFly .6s ease-out forwards}
+@keyframes sparkFly{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
+
+/* 蛋糕舞台：寿星 + 蛋糕 */
+.cake-stage{display:flex;align-items:flex-end;justify-content:center;gap:24px;margin-bottom:8px}
+.寿星{display:flex;flex-direction:column;align-items:center;gap:6px;position:relative}
+.寿星-face{width:72px;height:88px;border:3px solid #fff;border-radius:10px;background-size:cover;background-position:center top;image-rendering:pixelated;background-color:#2b3a67;transition:transform .2s}
+.寿星.blowing .寿星-face{animation:blowCheeks .6s ease-in-out}
+@keyframes blowCheeks{0%,100%{transform:scale(1)}30%{transform:scale(1.08)}60%{transform:scale(.95)}}
+.寿星-msg{font-size:8px;color:#ffd866;text-shadow:1px 1px 0 rgba(0,0,0,.4);background:rgba(0,0,0,.3);padding:3px 8px;border-radius:6px;white-space:nowrap}
+/* 吹气动画 */
+.breath{position:absolute;width:40px;height:20px;background:radial-gradient(ellipse,rgba(255,255,255,.7),transparent 70%);border-radius:50%;pointer-events:none;animation:breathFly .8s ease-out forwards}
+@keyframes breathFly{0%{transform:translateX(0) scale(.4);opacity:.9}100%{transform:translateX(120px) scale(1.8);opacity:0}}
+/* 蜡烛熄灭 */
+.cake.blown .candles i::after{background:transparent;box-shadow:none;animation:none}
+.smoke{position:absolute;width:10px;height:20px;background:rgba(200,200,200,.5);border-radius:50%;pointer-events:none;animation:smokeRise 1s ease-out forwards}
+@keyframes smokeRise{0%{transform:translateY(0) scale(.5);opacity:.7}100%{transform:translateY(-40px) scale(1.5);opacity:0}}
+
+/* 关灯祝福 */
+.bstep[data-step="bless"]{background:transparent}
+.dark-room{position:absolute;inset:0;background:#0a0e24;z-index:0}
+.candle-glow{position:absolute;bottom:18%;left:50%;transform:translateX(-50%);width:120px;height:120px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,190,80,.8),transparent 70%);animation:flick .4s steps(2) infinite}
+.bless-bubbles{position:relative;z-index:2;display:flex;flex-direction:column;gap:14px;width:100%;max-width:320px}
+.bless-bubble{background:var(--panel-blue);border:3px solid #fff;border-radius:12px;padding:12px;font-size:10px;line-height:1.8;opacity:0;transform:translateY(20px) scale(.8);transition:all .4s cubic-bezier(.34,1.56,.64,1)}
+.bless-bubble.show{opacity:1;transform:none;animation:bubbleBounce .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes bubbleBounce{0%{transform:translateY(20px) scale(.6);opacity:0}60%{transform:translateY(-6px) scale(1.05)}100%{transform:none;opacity:1}}
+.bless-bubble b{display:block;font-size:9px;color:#ffd866;margin-bottom:4px}
+.bstep[data-step="bless"] .pixel-btn{position:relative;z-index:2}
+
+/* 许愿信 */
+.letter-stage{height:220px;display:flex;align-items:center;justify-content:center}
+.envelope{position:relative;width:150px;height:100px;background:#f3e2b8;border:3px solid #fff;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.envelope:hover{transform:scale(1.05)}
+.envelope:active{transform:scale(.95)}
+.envelope .flap{position:absolute;top:0;left:0;right:0;height:50px;background:#e6cf9a;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform .5s cubic-bezier(.34,1.56,.64,1);z-index:3}
+.envelope.open .flap{transform:rotateX(170deg)}
+.letter-paper{font-size:22px;color:#b03a2e;font-family:var(--px-font);transition:transform .5s cubic-bezier(.34,1.56,.64,1),opacity .3s;z-index:1}
+.envelope.open .letter-paper{transform:translateY(-30px) scale(1.1);animation:paperWiggle .5s ease-in-out}
+@keyframes paperWiggle{0%,100%{transform:translateY(-30px) scale(1.1) rotate(0)}25%{transform:translateY(-30px) scale(1.1) rotate(-3deg)}75%{transform:translateY(-30px) scale(1.1) rotate(3deg)}}
+.seal{position:absolute;width:34px;height:34px;border-radius:50%;background:#c0392b;color:#ffd866;display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 0 0 3px rgba(192,57,43,.4);z-index:4;animation:sealStamp .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes sealStamp{from{transform:scale(2) rotate(-20deg);opacity:0}to{transform:none;opacity:1}}
+.seal.hidden{display:none}
+.envelope.folded{transform:scale(.55) rotate(-2deg)}
+.envelope.fly{animation:flyAway 1.2s cubic-bezier(.5,0,.75,0) forwards}
+@keyframes flyAway{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(50vw,-70vh) rotate(45deg);opacity:0}}
+
+/* 全家福 */
+.family-upload{cursor:pointer;width:100%}
+.family-slot{width:100%;aspect-ratio:4/3;border:3px dashed #fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:10px;overflow:hidden;background:rgba(255,255,255,.1);position:relative}
+.family-slot img{width:100%;height:100%;object-fit:cover;image-rendering:pixelated;animation:photoDevelop .6s steps(12)}
+.family-slot.loading::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 0%,#fff 50%,transparent 100%);animation:scanLine .5s steps(8) infinite}
+/* 生日帽：最右边女孩头上 */
+.bday-hat{position:absolute;width:18%;aspect-ratio:1/1.3;top:3%;left:76%;transform:rotate(12deg);z-index:2;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 26' shape-rendering='crispEdges'%3E%3Cpolygon points='10,0 0,24 20,24' fill='%23ff6ad5'/%3E%3Cpolygon points='10,0 3,24 10,24' fill='%23ffd866'/%3E%3Cpolygon points='10,0 10,24 17,24' fill='%236ad5ff'/%3E%3Crect x='0' y='22' width='20' height='3' fill='%23fff'/%3E%3Ccircle cx='10' cy='1' r='2.5' fill='%23fff'/%3E%3C/svg%3E") center/contain no-repeat;
+  filter:drop-shadow(2px 2px 0 rgba(0,0,0,.3));animation:hatBob 1.6s ease-in-out infinite}
+@keyframes hatBob{0%,100%{transform:rotate(12deg) translateY(0)}50%{transform:rotate(12deg) translateY(-3px)}}
+.final-bless{font-size:11px;line-height:2.1;color:#ffd866;text-shadow:2px 2px 0 rgba(0,0,0,.3)}
+
+/* 通用对话框 */
+.dialog-overlay{position:fixed;inset:0;background:rgba(20,30,70,.6);display:flex;align-items:center;justify-content:center;z-index:99;padding:24px;backdrop-filter:blur(3px)}
+.dialog-overlay.hidden{display:none}
+.dialog-overlay:not(.hidden) .dialog-panel{animation:dialogIn .35s cubic-bezier(.34,1.56,.64,1)}
+@keyframes dialogIn{from{transform:scale(.7) translateY(20px);opacity:0}to{transform:none;opacity:1}}
+.dialog-btns{display:flex;gap:14px}
+.pixel-btn.hidden,.hidden{display:none}
+
+/* ========== 抽卡场景：挂绳拍立得照片墙 ========== */
+#scene-gacha{overflow:hidden;isolation:isolate}
+#scene-gacha::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse at 50% 48%,rgba(255,248,223,.88),rgba(255,240,205,.3) 58%,rgba(64,87,126,.15));pointer-events:none}
+.gacha-photo-wall{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.gacha-photo-wall::-webkit-scrollbar{display:none}
+.gacha-photo-wall .wall-inner{position:relative;width:100%}
+.gacha-photo-wall .rope-svg{position:absolute;top:0;left:0;width:100%;pointer-events:none}
+#scene-gacha .panel{position:relative;z-index:2}
+/* 拍立得照片 */
+.polaroid{position:absolute;width:88px;padding:6px 6px 22px;background:#fff;border:1px solid rgba(80,62,38,.18);border-radius:2px;box-shadow:0 5px 12px rgba(37,39,52,.27);cursor:pointer;pointer-events:auto;transition:box-shadow .25s ease,filter .25s ease;will-change:transform;backface-visibility:hidden;transform:rotate(var(--rot,0deg)) scale(var(--scale,1))}
+.polaroid:nth-child(2n){animation-delay:-2.5s}
+.polaroid img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;pointer-events:none;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated}
+.polaroid img.pixel-loading{filter:saturate(.8) brightness(.96)}
+.polaroid::after{content:'';position:absolute;top:-7px;left:50%;transform:translateX(-50%);width:22px;height:7px;background:rgba(220,180,60,.85);border-radius:2px;box-shadow:0 1px 2px rgba(0,0,0,.3)}
+.polaroid::before{content:'';position:absolute;top:-1px;left:50%;transform:translateX(-50%);width:2px;height:10px;background:#b8860b;z-index:-1}
+.polaroid:hover,.polaroid:focus-visible{filter:brightness(1.04);box-shadow:0 10px 22px rgba(37,39,52,.4);z-index:20;outline:2px solid rgba(255,255,255,.8)}
+.polaroid.sway{animation:sway var(--dur,6s) ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(var(--rot,0deg)) scale(var(--scale,1)) translateY(0)}50%{transform:rotate(calc(var(--rot,0deg) + 1.2deg)) scale(var(--scale,1)) translateY(2px)}}
+
+/* ========== 照片灯箱 ========== */
+.lightbox{position:fixed;inset:0;background:rgba(16,20,32,.88);display:flex;align-items:center;justify-content:center;z-index:300;padding:20px;backdrop-filter:blur(10px);animation:lbFade .2s ease both}
+.lightbox.hidden{display:none}
+.lb-img{max-width:92vw;max-height:86vh;object-fit:contain;border-radius:4px;box-shadow:0 12px 48px rgba(0,0,0,.5);animation:lbIn .28s cubic-bezier(.2,.75,.25,1)}
+@keyframes lbFade{from{opacity:0}to{opacity:1}}
+@keyframes lbIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.lb-close,.lb-nav{position:absolute;background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:50%;cursor:pointer;font-family:var(--px-font);backdrop-filter:blur(4px);transition:background .2s}
+.lb-close{top:20px;right:20px;width:44px;height:44px;font-size:20px}
+.lb-close:hover{background:rgba(255,255,255,.3)}
+.lb-nav{top:50%;transform:translateY(-50%);width:50px;height:50px;font-size:32px;line-height:1}
+.lb-nav:hover{background:rgba(255,255,255,.3)}
+.lb-prev{left:16px}
+.lb-next{right:16px}
+.lb-counter{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);font-family:var(--px-font);font-size:13px;color:#fff;background:rgba(0,0,0,.5);padding:5px 14px;border-radius:20px}
+
+/* ========== 寿宴·选场地：横版卷轴动画背景（爬山→雨林→海边日落） ========== */
+.venue-anim{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;
+  background:linear-gradient(180deg,#ffe3b0 0%,#ffd9a0 18%,#a8e0f0 46%,#7ec8f7 100%)}
+.bstep[data-step="venue"] .panel{position:relative;z-index:2}
+/* 滚动世界：两份相同拼条，位移-50%无缝循环 */
+.va-world{position:absolute;top:0;left:0;width:200%;height:100%;animation:vaScroll 26s linear infinite;will-change:transform}
+.va-world svg{display:block;width:100%;height:100%}
+@keyframes vaScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+/* 像素云 */
+.va-cloud{position:absolute;left:0;width:34px;height:12px;background:#fff;border-radius:4px;opacity:.92;
+  box-shadow:-13px 3px 0 #fff,13px 3px 0 #fff,-23px 7px 0 rgba(255,255,255,.85),23px 7px 0 rgba(255,255,255,.85),0 -6px 0 #fff,-9px -5px 0 rgba(255,255,255,.9),9px -5px 0 rgba(255,255,255,.9);
+  animation:vaCloud var(--cd,40s) linear infinite}
+@keyframes vaCloud{from{transform:translateX(-100px) scale(var(--cs,1))}to{transform:translateX(var(--travel,110vw)) scale(var(--cs,1))}}
+/* 主角小队：地面线上原地蹦跳前进 */
+.va-team{position:absolute;left:50%;bottom:calc(22% - 4px);transform:translateX(-50%);display:flex;gap:12px;align-items:flex-end;z-index:1}
+.va-hiker-wrap{display:flex;flex-direction:column;align-items:center;gap:3px}
+.va-hiker{width:46px;height:46px;border-radius:50%;border:3px solid #fff;background-color:#fff;background-position:center top;background-size:cover;
+  image-rendering:-webkit-optimize-contrast;image-rendering:pixelated;
+  box-shadow:0 3px 0 rgba(0,0,0,.15);
+  animation:vaHike .62s steps(2) infinite;animation-delay:var(--d,0s);will-change:transform}
+@keyframes vaHike{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-9px) rotate(-4deg)}}
+.va-shadow{width:30px;height:7px;border-radius:50%;background:rgba(15,25,45,.3);
+  animation:vaShadow .62s ease-in-out infinite;animation-delay:var(--d,0s)}
+@keyframes vaShadow{0%,100%{transform:scaleX(1);opacity:.32}50%{transform:scaleX(.68);opacity:.16}}
+/* 角落漂浮的像素小精灵卡（地标/小动物） */
+.va-sprite{position:absolute;width:64px;padding:5px 5px 4px;background:linear-gradient(180deg,#eaf6ff,#fdf3dd);border:2px solid #fff;border-radius:8px;box-shadow:0 4px 10px rgba(37,39,52,.25);text-align:center;
+  animation:vaFloat 7s ease-in-out infinite;transition:opacity .45s ease;transform:rotate(var(--rot,0deg))}
+.va-sprite-img{width:100%;aspect-ratio:1/1;background-size:contain;background-repeat:no-repeat;background-position:center;
+  image-rendering:-webkit-optimize-contrast;image-rendering:pixelated;filter:drop-shadow(1px 1px 0 rgba(43,58,103,.18))}
+.va-sprite span{display:block;font-size:8px;line-height:1.4;padding-top:4px;color:#4a3f35;font-family:var(--px-font)}
+@keyframes vaFloat{0%,100%{transform:translateY(0) rotate(var(--rot,0deg))}50%{transform:translateY(-12px) rotate(calc(var(--rot,0deg) * -1))}}
+
+/* ========== 宿舍 · 开门大吉 ========== */
+/* 转场：通过以下挑战即可解锁该场景 */
+.ktk-intro{position:fixed;inset:0;z-index:150;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+  background:linear-gradient(180deg,#0a0e24,#1a2140);text-align:center;padding:24px}
+.ktk-intro.hidden{display:none}
+.ktk-intro-line{font-family:var(--px-font);font-size:15px;line-height:2;color:#ffd76a;text-shadow:2px 2px 0 #5a3a00;animation:ktkBlink 1.1s steps(2) infinite}
+.ktk-intro-sub{font-family:var(--px-font);font-size:10px;letter-spacing:2px;color:#8a97d6}
+@keyframes ktkBlink{50%{opacity:.45}}
+
+/* 游戏层：夜幕舞台 */
+.ktk-game{position:fixed;inset:0;z-index:140;display:flex;align-items:center;justify-content:center;overflow-y:auto;
+  background:radial-gradient(ellipse at 50% 30%,#2b3a67,#141b3d 70%,#0a0e24)}
+.ktk-game.hidden{display:none}
+.ktk-stage{width:min(100%,420px);display:flex;flex-direction:column;align-items:center;gap:14px;padding:18px 12px;position:relative}
+.ktk-title{font-family:var(--px-font);font-size:16px;color:#ffd76a;text-shadow:2px 2px 0 #5a3a00}
+.ktk-title.hidden{display:none}
+
+/* 三扇大门（沿用寝室门像素图） */
+.ktk-doors{display:flex;gap:12px;align-items:flex-end}
+.ktk-doors.hidden{display:none}
+.ktk-door{width:92px;height:126px;border:4px solid #5a2c14;border-radius:10px 10px 0 0;position:relative;
+  background:#1a2140 url('../assets/venue-dorm.jpg') center/cover no-repeat;
+  image-rendering:-webkit-optimize-contrast;image-rendering:pixelated;
+  box-shadow:inset 0 0 0 3px rgba(0,0,0,.18),0 6px 0 rgba(0,0,0,.3)}
+/* 中间：主门（更大）+ 门牌 + 门铃 */
+.ktk-door.center{width:110px;height:148px;border-color:#3d2c14;box-shadow:inset 0 0 0 3px rgba(0,0,0,.22),0 6px 0 rgba(0,0,0,.35)}
+/* 按门铃时大门抖动 */
+.ktk-door.center.ringing{animation:ktkRing .9s ease-in-out}
+@keyframes ktkRing{0%,100%{transform:rotate(0)}15%{transform:rotate(-2.5deg) translateX(-2px)}30%{transform:rotate(2deg) translateX(2px)}45%{transform:rotate(-1.5deg)}60%{transform:rotate(1deg)}75%{transform:rotate(-.5deg)}}
+.ktk-plate{position:absolute;top:6px;left:50%;transform:translateX(-50%);background:#f7e3b0;color:#5a3a00;
+  font-family:var(--px-font);font-size:8px;padding:3px 7px;border-radius:4px;border:2px solid #c9a45a;white-space:nowrap;z-index:2}
+.ktk-bell{position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);width:56px;height:56px;border-radius:50%;
+  border:4px solid #fff;cursor:pointer;z-index:3;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 35% 30%,#ff9d9d,#e03131 60%,#b02020);
+  box-shadow:0 5px 0 #7a1414,0 0 0 0 rgba(255,80,80,.55);
+  animation:ktkBellPulse 1.4s ease-out infinite;
+  transition:transform .1s,box-shadow .1s}
+.ktk-bell.hidden{display:none}
+.ktk-bell span{font-family:var(--px-font);font-size:9px;color:#fff;text-shadow:1px 1px 0 rgba(0,0,0,.4);line-height:1.3}
+.ktk-bell:active{transform:translate(-50%,-50%) translateY(3px) scale(.95);box-shadow:0 2px 0 #7a1414}
+@keyframes ktkBellPulse{0%{box-shadow:0 5px 0 #7a1414,0 0 0 0 rgba(255,80,80,.55)}100%{box-shadow:0 5px 0 #7a1414,0 0 0 18px rgba(255,80,80,0)}}
+
+/* 规则逐行飘出 */
+.ktk-rules{display:flex;flex-direction:column;gap:7px;text-align:center}
+.ktk-rules.hidden{display:none}
+.ktk-rules p{font-family:var(--px-font);font-size:9px;line-height:1.8;color:#c9d4f0;opacity:0;transform:translateY(10px)}
+.ktk-rules p.show{animation:ktkRuleIn .6s cubic-bezier(.2,.7,.2,1) forwards}
+.ktk-rules p.hl{color:#ffd76a}
+@keyframes ktkRuleIn{to{opacity:1;transform:none}}
+
+/* 播放指示（大字 + 漂浮音符） */
+.ktk-playing{position:relative;font-family:var(--px-font);font-size:12px;line-height:1.8;color:#8fd0ff;
+  text-shadow:0 0 8px rgba(143,208,255,.6);animation:ktkBlink 1s steps(2) infinite;padding:0 30px}
+.ktk-playing.hidden{display:none}
+.ktk-note{position:absolute;top:-6px;font-size:14px;color:#ffd76a;text-shadow:1px 1px 0 #5a3a00;animation:ktkNoteFloat 1.6s ease-in-out infinite;pointer-events:none}
+.ktk-note.n1{left:0;animation-delay:0s}
+.ktk-note.n2{right:0;font-size:17px;animation-delay:.5s}
+.ktk-note.n3{left:14px;top:12px;animation-delay:1s}
+@keyframes ktkNoteFloat{0%{transform:translateY(6px) scale(.8);opacity:.4}50%{transform:translateY(-8px) scale(1.15);opacity:1}100%{transform:translateY(6px) scale(.8);opacity:.4}}
+
+/* 技能区 */
+.ktk-skills{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.ktk-skills .pixel-btn{font-size:9px;padding:9px 12px}
+.ktk-skills.locked .pixel-btn{opacity:.3;pointer-events:none}
+.ktk-skill.used{opacity:.35!important;pointer-events:none;filter:grayscale(1)}
+
+/* 选项 */
+.ktk-options{display:flex;flex-direction:column;gap:8px;width:min(100%,300px)}
+.ktk-opt{display:flex;align-items:center;gap:10px;background:#f4f6f8;border:3px solid #fff;border-radius:10px;
+  padding:9px 12px;cursor:pointer;text-align:left;opacity:0;transform:translateY(14px) scale(.92);
+  transition:opacity .3s,filter .3s,transform .15s;box-shadow:0 4px 0 rgba(0,0,0,.3)}
+.ktk-opt.show{animation:ktkOptIn .45s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes ktkOptIn{to{opacity:1;transform:none}}
+.ktk-opt:active{transform:scale(.97)}
+.ktk-opt.dim{opacity:.25!important;filter:grayscale(1);pointer-events:none}
+.ktk-opt .opt-label{font-family:var(--px-font);font-size:13px;color:#2b3a67;white-space:nowrap}
+.ktk-opt .opt-note{font-family:var(--px-font);font-size:9px;line-height:1.5;color:#7a8199}
+
+/* 盖章：笨 / 真棒！ */
+.ktk-stamp{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%) rotate(-14deg) scale(2.2);
+  font-family:var(--px-font);font-size:64px;font-weight:bold;color:#ff3b3b;
+  border:5px solid currentColor;border-radius:14px;padding:8px 18px;opacity:0;pointer-events:none;z-index:5;
+  text-shadow:3px 3px 0 rgba(0,0,0,.25);background:rgba(255,255,255,.08)}
+.ktk-stamp.show{animation:ktkStampIn .55s cubic-bezier(.34,1.56,.64,1) forwards}
+.ktk-stamp.good{color:#2fae4a;font-size:44px}
+@keyframes ktkStampIn{0%{opacity:0;transform:translate(-50%,-50%) rotate(-14deg) scale(2.2)}60%{opacity:1;transform:translate(-50%,-50%) rotate(-14deg) scale(.94)}100%{opacity:1;transform:translate(-50%,-50%) rotate(-14deg) scale(1)}}
+
+/* 气泡提示 */
+.ktk-bubble{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);max-width:86%;
+  background:#fff;color:#2b3a67;font-family:var(--px-font);font-size:9px;line-height:1.7;
+  border-radius:12px;padding:9px 13px;border:3px solid #2b3a67;box-shadow:0 4px 0 rgba(0,0,0,.3);
+  animation:ktkBubbleIn .3s cubic-bezier(.34,1.56,.64,1);z-index:6;text-align:center;pointer-events:none}
+.ktk-bubble.hidden{display:none}
+
+/* 不起眼的作弊小按钮（场外求助挂断后出现，问完全部人消失） */
+.ktk-cheat{position:absolute;bottom:7px;right:9px;z-index:6;font-family:var(--px-font);font-size:8px;
+  color:#fff;background:rgba(43,58,103,.55);border:2px solid rgba(255,255,255,.4);border-radius:6px;
+  padding:4px 7px;cursor:pointer;opacity:.32;transition:opacity .2s;letter-spacing:1px}
+.ktk-cheat:hover{opacity:.9}
+.ktk-cheat.hidden{display:none}
+@keyframes ktkBubbleIn{from{opacity:0;transform:translateX(-50%) translateY(8px) scale(.9)}to{opacity:1;transform:translateX(-50%)}}
+
+/* 小猪：出现 / 哼哼哼跑开 */
+.ktk-pig{position:absolute;bottom:120px;left:10px;width:64px;padding:5px 5px 4px;z-index:7;
+  background:linear-gradient(180deg,#eaf6ff,#fdf3dd);border:2px solid #fff;border-radius:8px;
+  box-shadow:0 4px 10px rgba(0,0,0,.35);text-align:center;pointer-events:none}
+.ktk-pig.hidden{display:none}
+.ktk-pig.show{animation:ktkPigIn .45s cubic-bezier(.34,1.56,.64,1)}
+.ktk-pig-img{width:100%;aspect-ratio:1/1;background:url('../assets/pig.png') center/contain no-repeat;
+  image-rendering:-webkit-optimize-contrast;image-rendering:pixelated;border:2px solid #fff;border-radius:6px}
+.ktk-pig span{display:block;font-size:8px;line-height:1.4;padding-top:4px;color:#4a3f35;font-family:var(--px-font)}
+@keyframes ktkPigIn{from{opacity:0;transform:translateY(20px) scale(.5) rotate(-8deg)}to{opacity:1;transform:none}}
+.ktk-pig.run{animation:ktkPigRun 1.6s ease-in forwards}
+@keyframes ktkPigRun{0%{transform:translateX(0) rotate(0)}15%{transform:translateX(6px) rotate(8deg)}30%{transform:translateX(14px) rotate(-6deg)}45%{transform:translateX(24px) rotate(8deg)}100%{transform:translateX(min(90vw,420px)) rotate(14deg);opacity:.1}}
+
+/* 场外求助：电话面板 */
+.ktk-phone{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;
+  background:rgba(10,14,36,.72);backdrop-filter:blur(2px)}
+.ktk-phone.hidden{display:none}
+.ktk-phone-inner{width:min(88%,320px);background:#f4f6f8;border:4px solid #fff;border-radius:18px;
+  box-shadow:0 8px 0 rgba(0,0,0,.35);padding:16px 14px;display:flex;flex-direction:column;align-items:center;gap:14px;
+  animation:ktkPhoneIn .35s cubic-bezier(.34,1.56,.64,1)}
+@keyframes ktkPhoneIn{from{opacity:0;transform:translateY(24px) scale(.9)}to{opacity:1;transform:none}}
+.ktk-phone-head{display:flex;align-items:center;gap:12px;width:100%}
+.kph-avatar{width:64px;height:64px;flex:none;background:#2b3a67 center/cover;border:3px solid #fff;border-radius:12px;
+  image-rendering:-webkit-optimize-contrast;image-rendering:pixelated;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.kph-status{font-family:var(--px-font);font-size:10px;line-height:1.7;color:#2b3a67;text-align:left}
+.kph-contacts{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.kph-contacts.hidden{display:none}
+.kph-contacts .pixel-btn{font-size:9px;padding:9px 11px}
+/* 已求助过的人：变灰不可再选 */
+.kph-contact.used{opacity:.3;filter:grayscale(1);pointer-events:none}
+.kph-talk{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%}
+.kph-talk.hidden{display:none}
+.kph-talk-avatar{width:76px;height:76px;background:#2b3a67 center/cover;border:3px solid #fff;border-radius:14px;
+  image-rendering:-webkit-optimize-contrast;image-rendering:pixelated;box-shadow:0 3px 0 rgba(0,0,0,.25);
+  animation:ktkPigIn .4s cubic-bezier(.34,1.56,.64,1)}
+.kph-talk-name{font-family:var(--px-font);font-size:12px;color:#2b3a67}
+.kph-talk-line{font-family:var(--px-font);font-size:9px;line-height:1.9;color:#4a5578;background:#eef1f6;
+  border-radius:10px;padding:9px 12px;border:2px solid #c9d4f0;width:100%;text-align:center}
+
+/* 答对后的下一关按钮区 */
+.ktk-next.hidden{display:none}
+
+/* 关闭按钮（暂时跳过挑战） */
+.ktk-close{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;
+  background:rgba(255,255,255,.12);color:#c9d4f0;border:2px solid rgba(255,255,255,.3);cursor:pointer;
+  font-family:var(--px-font);font-size:12px;z-index:8;transition:background .15s}
+.ktk-close:hover{background:rgba(255,255,255,.25)}
+/* 显式跳过按钮：三个挑战（开门大吉/别笑/斗地主）随时可跳过 */
+.stage-skip{position:absolute;top:10px;left:10px;z-index:6;font-size:9px;padding:9px 12px}
+
+/* ========== 望宝川 · 别笑挑战 ========== */
+/* 第一关：猜猜我是谁（计算题） */
+.wbc-quiz{display:flex;flex-direction:column;align-items:center;gap:16px;padding:26px 0 10px}
+.wbc-quiz.hidden{display:none}
+.wbc-quiz-name{font-family:var(--px-font);font-size:10px;color:#c9d4f0;letter-spacing:1px}
+.wbc-quiz-q{font-family:var(--px-font);font-size:22px;color:#fff;text-shadow:3px 3px 0 var(--panel-blue-deep);letter-spacing:2px}
+.wbc-opts{margin-top:6px}
+
+/* 第二关：黑头挑战 */
+.wbc-heito{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%}
+.wbc-heito.hidden{display:none}
+.wbc-hud{display:flex;align-items:center;justify-content:space-between;gap:10px;width:min(100%,342px)}
+.wbc-count{font-family:var(--px-font);font-size:10px;color:#ffd76a;text-shadow:2px 2px 0 #5a3a00}
+.wbc-cheat-btn{font-size:9px;padding:8px 11px}
+
+/* 照片舞台：3:4 竖图，等比缩放 */
+.wbc-photo{position:relative;width:min(92%,calc((100dvh - 310px) * .75),342px);
+  border:4px solid #fff;border-radius:12px;overflow:hidden;background:#000;
+  box-shadow:0 6px 0 rgba(0,0,0,.35);touch-action:manipulation}
+.wbc-photo img{display:block;width:100%;height:auto;pointer-events:none}
+
+/* 黑点：鼻梁/鼻翼上待夹的黑头（视觉仅 3px，点击热区 18px 方便点） */
+.wbc-dot{position:absolute;width:18px;height:18px;transform:translate(-50%,-50%);
+  background:transparent;border:none;cursor:pointer;padding:0;z-index:5}
+.wbc-dot::before{content:'';position:absolute;left:50%;top:50%;width:3px;height:3px;
+  transform:translate(-50%,-50%);border-radius:50%;
+  background:radial-gradient(circle at 40% 35%,#5c5347,#2e2820 55%,rgba(24,20,14,.9));
+  box-shadow:0 0 2px rgba(30,24,16,.45);transition:transform .15s cubic-bezier(.34,1.56,.64,1)}
+.wbc-dot:hover::before{transform:translate(-50%,-50%) scale(1.7)}
+/* 背景那位仁兄：更小更淡（远景） */
+.wbc-dot.far::before{width:2px;height:2px;opacity:.7}
+/* 拔出时顶端冒出的白色脂肪根（完整黑头） */
+.wbc-dot::after{content:'';position:absolute;left:50%;top:calc(50% - 5px);width:2px;height:3px;
+  transform:translateX(-50%);border-radius:50% 50% 40% 40%;
+  background:linear-gradient(#f4ecd8,#d8c9a8);opacity:0;transition:opacity .25s}
+.wbc-dot.pulling::after{opacity:.9}
+
+/* 拔出动画：夹住鼓起 → 缓慢拉长成黑头条 → 拔出飞走 */
+.wbc-dot.pulling{animation:wbcPull 1.15s cubic-bezier(.45,.05,.6,1) forwards;pointer-events:none}
+@keyframes wbcPull{
+  0%{transform:translate(-50%,-50%) scale(1)}
+  12%{transform:translate(-50%,-50%) scale(1.55)}
+  45%{transform:translate(-50%,-64%) scale(1,2.6) rotate(8deg)}
+  70%{transform:translate(-50%,-115%) scale(1,3.2) rotate(18deg);opacity:1}
+  100%{transform:translate(-50%,-220%) scale(1,3.6) rotate(30deg);opacity:0}
+}
+.wbc-dot.pulled{display:none}
+
+/* 作弊箭头：指向未拔的黑头，闪几下 */
+.wbc-arrow{position:absolute;z-index:6;transform:translate(-50%,-100%);font-size:24px;line-height:1;
+  color:#ff4d4d;text-shadow:0 0 8px rgba(255,77,77,.9),2px 2px 0 #000;pointer-events:none}
+.wbc-arrow.hidden{display:none}
+.wbc-arrow.blink{animation:wbcArrowBlink 2.6s steps(1) forwards}
+@keyframes wbcArrowBlink{0%,20%,40%,60%,80%{opacity:1}10%,30%,50%,70%{opacity:.15}100%{opacity:0}}
+
+.wbc-tip{font-family:var(--px-font);font-size:9px;color:#c9d4f0;opacity:.85}
+
+/* ========== 云南之旅 · 343像素冒险（iframe 游戏层） ========== */
+.adv-layer{position:fixed;inset:0;z-index:150;background:#000;display:flex}
+.adv-layer.hidden{display:none}
+.adv-layer iframe{flex:1;width:100%;height:100%;border:none;background:#000}
+/* 固定悬浮返回按钮（低调，随时可回主站地图） */
+.adv-back{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));right:10px;width:36px;height:36px;
+  border-radius:50%;background:rgba(0,0,0,.45);color:#fff;border:2px solid rgba(255,255,255,.5);cursor:pointer;
+  font-family:var(--px-font);font-size:13px;z-index:2;transition:background .15s}
+.adv-back:hover{background:rgba(0,0,0,.75)}
+/* 云南之旅节点完成标记（三关全通打勾）——父级 .map-node 本身是 absolute，可直接当定位上下文 */
+.node-done{position:absolute;top:-7px;right:-7px;width:22px;height:22px;border-radius:50%;
+  background:#2fae4a;color:#fff;font-size:12px;line-height:19px;text-align:center;
+  border:2px solid #fff;box-shadow:0 2px 0 rgba(0,0,0,.3)}
+.node-done.hidden{display:none}
+/* 场景锁链已解除：所有场景随时可开 */
+/* 地图页召唤栏：随时召唤/遣返已解锁人物（与抽卡页同一支队伍） */
+.map-team{position:absolute;left:0;right:0;bottom:7.5%;z-index:4;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none}
+.map-team .team-row{pointer-events:auto}
+.map-team .team-row.hidden{display:none}
+.team-toggle{pointer-events:auto;font-size:9px;padding:8px 14px}
+
+/* ========== 北京重聚（占位通关页） ========== */
+.bj-lineup{display:flex;justify-content:center;align-items:flex-end;gap:0;flex-wrap:wrap;margin:16px 0 22px;max-width:300px}
+.bj-hero{position:relative;width:52px;height:96px;background:center bottom/contain no-repeat;
+  image-rendering:-webkit-optimize-contrast;image-rendering:pixelated;margin-left:-6px}
+.bj-hero:first-child{margin-left:0}
+.bj-hero b{position:absolute;left:50%;bottom:-17px;transform:translateX(-50%);font-family:var(--px-font);font-weight:400;
+  font-size:7px;color:#ffd76a;background:var(--panel-blue);border:1px solid #fff;border-radius:5px;padding:2px 5px;white-space:nowrap}
+
+/* ========== 手拉手全员舞台（抽卡页底部） ========== */
+.team-stage{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:6px 10px 10px;
+  background:linear-gradient(180deg,rgba(10,14,36,0),rgba(10,14,36,.85) 46%);text-align:center;pointer-events:none}
+.team-title{font-family:var(--px-font);font-size:8px;color:#ffd76a;text-shadow:1px 1px 0 #5a3a00;margin-bottom:5px}
+.team-row{display:flex;justify-content:center;align-items:flex-end;min-height:calc(var(--mw,54px) + 10px)}
+.team-empty{font-family:var(--px-font);font-size:8px;color:rgba(201,212,240,.7);line-height:54px}
+/* 手拉手成员：统一宽度（--mw 由 JS 按人数设定），主角配角体量一致；竖长立绘限高 2.2 倍防溢出 */
+.team-member{width:auto;height:auto;border:none;background:transparent;cursor:pointer;padding:0;
+  margin-left:-6px;pointer-events:auto;transition:transform .15s cubic-bezier(.34,1.56,.64,1)}
+.team-member img{display:block;width:var(--mw,54px);height:auto;max-height:calc(var(--mw,54px) * 2.2);object-fit:contain;
+  image-rendering:-webkit-optimize-contrast;image-rendering:pixelated;
+  filter:drop-shadow(0 3px 0 rgba(0,0,0,.4));user-select:none;-webkit-user-drag:none}
+.team-member:first-child{margin-left:0}
+.team-member:hover{transform:translateY(-4px)}
+/* 集齐庆祝：全员依次弹跳登场 */
+.team-row.celebrate .team-member{animation:teamJump .55s cubic-bezier(.34,1.56,.64,1) backwards}
+@keyframes teamJump{0%{transform:translateY(26px) scale(.7);opacity:0}60%{transform:translateY(-7px) scale(1.06);opacity:1}100%{transform:none;opacity:1}}
+/* 卡牌入队状态 */
+.card-back.in-team{border-color:#2fae4a;box-shadow:0 0 0 2px #2fae4a,0 4px 0 rgba(0,0,0,.3)}
+.team-badge{position:absolute;top:-7px;right:-7px;width:17px;height:17px;border-radius:50%;background:#2fae4a;
+  color:#fff;font-size:11px;font-style:normal;line-height:17px;text-align:center;border:2px solid #fff;z-index:2}
+
+/* ========== 研究生院 · 欢乐斗地主 ========== */
+.ddz-stage{gap:10px}
+.ddz-table{position:relative;width:min(100%,380px);aspect-ratio:10/9.2;max-height:56vh;
+  background:radial-gradient(ellipse at 50% 42%,#2f8552,#1d5537 66%,#134228);
+  border:4px solid #8b6f47;border-radius:18px;overflow:hidden;
+  box-shadow:inset 0 0 0 3px rgba(0,0,0,.28),0 8px 0 rgba(0,0,0,.35)}
+.ddz-seat{position:absolute;display:flex;flex-direction:column;align-items:center;gap:3px;width:84px;z-index:2}
+.ddz-seat-top{top:7px;left:50%;transform:translateX(-50%)}
+.ddz-seat-left{left:7px;top:42%;transform:translateY(-50%)}
+.ddz-seat-right{right:7px;top:42%;transform:translateY(-50%)}
+.ddz-seat-bottom{bottom:7px;left:50%;transform:translateX(-50%)}
+.ddz-avs{display:flex;gap:3px}
+.ddz-av{width:30px;height:30px;background:#22315c center/cover no-repeat;border:2px solid #fff;border-radius:8px;
+  image-rendering:pixelated;box-shadow:0 2px 0 rgba(0,0,0,.4)}
+.ddz-av.flip{transform:scaleX(-1)}
+.ddz-salon-av{background-image:url('../assets/salon.png');background-position:center 12%}
+.ddz-name{font-family:var(--px-font);font-size:7px;color:#fff;text-shadow:1px 1px 0 rgba(0,0,0,.55);white-space:nowrap}
+.ddz-seat.landlord .ddz-name::after{content:'· 地主组';color:#ffd76a}
+.ddz-info{font-family:var(--px-font);font-size:7px;color:#ffe9a8;text-shadow:1px 1px 0 rgba(0,0,0,.5)}
+.ddz-beans{font-family:var(--px-font);font-size:7px;color:#c9d4f0}
+.ddz-beans b{font-weight:400}
+.ddz-beans b.up{color:#7dff7d}
+.ddz-beans b.down{color:#ff8f8f}
+.ddz-seat.turn .ddz-av{border-color:#ffd76a;box-shadow:0 0 10px rgba(255,216,102,.9)}
+.ddz-seat.turn .ddz-name{color:#ffd76a}
+.ddz-bubble{--bx:translateX(-50%);position:absolute;top:-34px;left:50%;transform:var(--bx);white-space:nowrap;
+  font-family:var(--px-font);font-size:8px;background:#fff;color:#333;border:2px solid #333;border-radius:8px;
+  padding:5px 8px;z-index:5;box-shadow:0 3px 0 rgba(0,0,0,.35);animation:ddzBubbleIn .25s ease}
+@keyframes ddzBubbleIn{from{opacity:0;transform:var(--bx) translateY(8px) scale(.9)}to{opacity:1;transform:var(--bx)}}
+.ddz-seat-top .ddz-bubble{top:auto;bottom:-34px}
+.ddz-seat-left .ddz-bubble{--bx:translateX(0);left:0}
+.ddz-seat-right .ddz-bubble{--bx:translateX(0);left:auto;right:0}
+.ddz-bubble.hidden{display:none}
+.ddz-center{position:absolute;left:96px;right:96px;top:78px;bottom:78px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:6px;text-align:center;z-index:1}
+.ddz-mult{font-family:var(--px-font);font-size:9px;color:#ffd76a;text-shadow:1px 1px 0 #5a3a00;
+  background:rgba(0,0,0,.35);padding:4px 8px;border-radius:8px}
+.ddz-mult.bump{animation:ddzMultBump .4s ease}
+@keyframes ddzMultBump{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
+.ddz-phase{font-family:var(--px-font);font-size:7px;color:rgba(255,255,255,.92);line-height:1.8}
+.ddz-played{min-height:60px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.ddz-play-hint{font-family:var(--px-font);font-size:7px;color:rgba(255,255,255,.75);line-height:1.8}
+.ddz-play-who{font-family:var(--px-font);font-size:8px;color:#ffe9a8;line-height:1.6}
+.ddz-play-cards{display:flex;flex-wrap:wrap;justify-content:center;max-width:180px}
+.pcard{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:15px;height:21px;
+  background:#fff;border:1px solid #99a;border-radius:3px;font-family:var(--px-font);font-size:7px;line-height:1.1;
+  color:#222;margin:1px;box-shadow:0 2px 0 rgba(0,0,0,.35)}
+.pcard em{font-style:normal;font-size:7px}
+.pcard.red{color:#e03131}
+.pcard.joker{width:17px;background:#fffbe6}
+.ddz-team-tag{position:absolute;font-family:var(--px-font);font-size:6px;color:#fff;padding:3px 6px;border-radius:6px;z-index:3}
+.ddz-tag-hero{left:8px;top:6px;background:#2fae4a;box-shadow:0 2px 0 rgba(0,0,0,.3)}
+.ddz-tag-salon{right:8px;top:6px;background:#c2255c;box-shadow:0 2px 0 rgba(0,0,0,.3)}
+.ddz-actions{display:flex;gap:10px;justify-content:center}
+/* 场外应援：攻击栏（点对手座位锁定目标 → 扔水桶/烂番茄/倒拇指） */
+.ddz-attack{margin:10px auto 4px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 10px;max-width:340px;
+  background:rgba(11,24,47,.55);border:2px dashed rgba(255,216,102,.45);border-radius:8px}
+.ddz-attack-title{font-size:8px;color:#ffd866;text-align:center;line-height:1.4}
+.ddz-attack-btns{display:flex;gap:8px}
+.ddz-wpn{font-size:9px;padding:8px 10px}
+.ddz-seat{cursor:pointer}
+.ddz-seat.target{outline:3px solid #ff5a5a;outline-offset:3px;border-radius:8px;animation:ddz-target-pulse 1s infinite}
+@keyframes ddz-target-pulse{50%{outline-color:rgba(255,90,90,.25)}}
+.ddz-seat.shake{animation:ddz-shake .45s}
+@keyframes ddz-shake{20%{transform:translate(-4px,2px) rotate(-2deg)}40%{transform:translate(4px,-2px) rotate(2deg)}
+  60%{transform:translate(-3px,1px) rotate(-1deg)}80%{transform:translate(2px,-1px)}}
+.ddz-missile{position:fixed;z-index:99;font-size:24px;pointer-events:none;animation:ddz-fly .55s ease-in forwards}
+@keyframes ddz-fly{to{transform:translate(var(--dx),var(--dy)) scale(.55) rotate(230deg);opacity:.85}}
+.ddz-float{position:absolute;top:-8px;left:50%;translate:-50% 0;z-index:5;color:#ff8a8a;font-size:10px;font-weight:700;
+  white-space:nowrap;animation:ddz-floatup 1.3s forwards;pointer-events:none}
+@keyframes ddz-floatup{to{transform:translateY(-26px);opacity:0}}
+/* 关卡锁链：北京重聚在云南通关前灰显（仍可点，点了弹解锁提示） */
+.node-locked{filter:grayscale(.85);opacity:.45}
+/* 胜利画面：四个主角仰天长啸 */
+.ddz-win{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 50% 38%,rgba(47,174,74,.96),rgba(16,48,32,.97))}
+.ddz-win.hidden{display:none}
+.ddz-win-box{position:relative;z-index:2;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;
+  padding:18px;animation:ddzWinIn .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes ddzWinIn{from{opacity:0;transform:scale(.7) translateY(24px)}to{opacity:1;transform:none}}
+.ddz-win-title{font-family:var(--px-font);font-size:13px;color:#ffd76a;text-shadow:2px 2px 0 #5a3a00}
+.ddz-roars{display:flex;justify-content:center;align-items:flex-end;gap:8px}
+.ddz-roar{position:relative;width:56px;height:96px;background:transparent center bottom/contain no-repeat;
+  image-rendering:pixelated;transform-origin:50% 100%;animation:ddzRoar .8s ease-in-out infinite}
+.ddz-roar:nth-child(2){animation-delay:.12s}
+.ddz-roar:nth-child(3){animation-delay:.24s}
+.ddz-roar:nth-child(4){animation-delay:.36s}
+@keyframes ddzRoar{0%,100%{transform:rotate(-4deg) scale(1)}50%{transform:rotate(-9deg) scale(1.07) translateY(-4px)}}
+.roar-cry{position:absolute;top:-18px;left:50%;white-space:nowrap;
+  font-family:var(--px-font);font-size:8px;color:#fff;background:#e8590c;border:2px solid #fff;border-radius:8px;
+  padding:4px 6px;box-shadow:0 3px 0 rgba(0,0,0,.35);animation:roarCry 1.4s ease-in-out infinite}
+@keyframes roarCry{0%,100%{transform:translate(-50%,0) rotate(-2deg);opacity:1}50%{transform:translate(-50%,-6px) rotate(2deg);opacity:.85}}
+.ddz-win-sub{font-family:var(--px-font);font-size:8px;color:#e9f7ee;line-height:2}
+.ddz-rain{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1}
+.ddz-rain span{position:absolute;top:-30px;animation-name:ddzRainFall;animation-iteration-count:infinite;animation-timing-function:linear}
+@keyframes ddzRainFall{to{transform:translateY(110vh) rotate(360deg)}}
+
+/* ========== 响应式 ========== */
+@media (max-width:600px){
+  #scene-gacha{padding:14px}
+  #scene-gacha .panel{max-width:min(340px,76vw)}
+  #scene-gacha .panel-inner{padding:20px 12px;gap:12px}
+  #scene-gacha .panel-h{font-size:clamp(10px,2.7vw,14px)}
+  #scene-gacha .panel-p{font-size:8px}
+  .polaroid{padding:4px 4px 16px}
+  .polaroid::after{width:18px;height:6px;top:-6px}
+  .lb-nav{width:42px;height:42px;font-size:26px}
+  .va-hiker{width:38px;height:38px}
+  .va-team{gap:8px}
+  .va-sprite{width:52px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
