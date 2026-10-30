@@ -2609,9 +2609,11 @@ document.getElementById('btn-back-map').addEventListener('click', () => {
 (function init() {
   // ?reset=1 只清除当前昵称的存档，同一设备的其他人不受影响
   if (new URLSearchParams(location.search).get('reset')) {
-    ['photo', 'drawn', 'slots', 'team', 'team_8', 'beijing_done', 'banquet_done'].forEach(n => localStorage.removeItem(sk(n)));
-    try { localStorage.removeItem(adventureKey()); } catch (e) {}
-    try { localStorage.removeItem('pp_muted'); } catch (e) {}
+    try {
+      ['photo', 'drawn', 'slots', 'team', 'team_8', 'beijing_done', 'banquet_done'].forEach(n => localStorage.removeItem(sk(n)));
+      localStorage.removeItem(adventureKey());
+      localStorage.removeItem('pp_muted');
+    } catch (e) { /* 隐私模式下 localStorage 被禁，忽略 */ }
   }
   // 每次打开都重置抽卡进度（手拉手团队随之散伙、集齐庆祝重置），保留玩家照片
   store.drawn = [];
