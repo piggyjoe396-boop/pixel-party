@@ -77,7 +77,13 @@ function pixelateUrl(url, callback) {
 const store = {
   get photo() { return localStorage.getItem('pp_photo'); },
   set photo(v) { v ? localStorage.setItem('pp_photo', v) : localStorage.removeItem('pp_photo'); },
-  get drawn() { return JSON.parse(localStorage.getItem('pp_drawn') || '[]'); },
+  /* 本地存档可能被手改或写坏，解析失败时回退空数组，避免整站初始化崩掉 */
+  get drawn() {
+    try {
+      const v = JSON.parse(localStorage.getItem('pp_drawn') || '[]');
+      return Array.isArray(v) ? v : [];
+    } catch (e) { return []; }
+  },
   set drawn(v) { localStorage.setItem('pp_drawn', JSON.stringify(v)); },
   get slots() { try { return JSON.parse(localStorage.getItem('pp_slots')); } catch { return null; } },
   set slots(v) { localStorage.setItem('pp_slots', JSON.stringify(v)); },
@@ -782,6 +788,9 @@ const PHOTO_LIST = (() => {
   return list;
 })();
 
+/* 照片墙只加载 96px 缩略图（3.2MB → 192KB），原图留给灯箱 */
+function thumbSrc(src) { return src.replace(/^(assets\/memories\/)(mem-\d+)\.\w+$/, '$1thumbs/$2.jpg'); }
+
 /* 像素化照片墙缩略图，原图只在灯箱中加载 */
 const PIXEL_CACHE = new Map();
 function getPixelated(src) {
@@ -893,10 +902,11 @@ function renderGachaPhotoWall() {
     const img = document.createElement('img');
     img.loading = 'lazy';
     img.alt = `回忆 ${i + 1}`;
-    img.src = src;                        // 先显示原图占位
+    const thumb = thumbSrc(src);
+    img.src = thumb;                      // 先显示缩略图占位
     img.dataset.src = src;
     img.classList.add('pixel-loading');
-    getPixelated(src).then(dataUrl => {   // 像素化完成后替换
+    getPixelated(thumb).then(dataUrl => { // 像素化完成后替换
       if (!item.isConnected) return;
       img.src = dataUrl;
       img.classList.remove('pixel-loading');
@@ -2491,7 +2501,7 @@ document.getElementById('btn-letter-done').addEventListener('click', () => {
   // 自动加载合照并像素化
   const slot = document.getElementById('family-slot');
   slot.classList.add('loading');
-  pixelateUrl('assets/family-photo.png', dataUrl => {
+  pixelateUrl('assets/family-photo.jpg', dataUrl => {
     slot.innerHTML = `<img src="${dataUrl}" alt="全家福"><div class="bday-hat"></div>`;
     slot.classList.remove('loading');
     Audio8bit.sfx.fanfare();
