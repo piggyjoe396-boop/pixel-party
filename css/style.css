@@ -91,7 +91,7 @@ body{font-family:var(--px-font);color:var(--ink);background:var(--sky1)}
 .nickname-row{display:flex;align-items:center;gap:8px;width:100%;max-width:240px;margin:0 auto 4px}
 .nickname-tip{flex:none;font-size:10px;letter-spacing:1px;opacity:.9}
 .nickname-input{
-  flex:1;min-width:0;padding:7px 9px;font-family:inherit;font-size:12px;color:#fff;text-align:center;
+  flex:1;min-width:0;padding:6px 9px;font-family:inherit;font-size:16px;color:#fff;text-align:center;
   background:rgba(255,255,255,.16);border:3px solid #fff;border-radius:10px;outline:none;
 }
 .nickname-input::placeholder{color:rgba(255,255,255,.55)}
@@ -101,7 +101,7 @@ body{font-family:var(--px-font);color:var(--ink);background:var(--sky1)}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 
 /* ---- 抽卡 ---- */
-.deck{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:6px auto;width:280px;max-width:86vw}
+.deck{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:6px auto;width:100%;max-width:280px}
 .card-back{position:relative;aspect-ratio:3/4;border:3px solid #fff;border-radius:8px;min-width:0;background:
   repeating-linear-gradient(45deg,var(--panel-blue-deep) 0 6px,var(--panel-blue) 6px 12px);
   display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:transform .15s cubic-bezier(.34,1.56,.64,1),box-shadow .15s;position:relative}
@@ -870,4 +870,16 @@ body{font-family:var(--px-font);color:var(--ink);background:var(--sky1)}
 .lb-prev{left:calc(16px + var(--sal))}
 .lb-next{right:calc(16px + var(--sar))}
 .lb-counter{bottom:calc(20px + var(--sab))}
+
+/* ========== iOS Safari 适配 ========== */
+/* iOS 横屏时不会自动放大字号 */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+/* 禁止整页橡皮筋回弹，避免弹窗时背景跟着动 */
+body{overscroll-behavior:none}
+/* 可点元素去掉双击缩放判定，点击响应更快 */
+button,.pixel-btn,.photo-upload,.card-back,.venue,label{touch-action:manipulation}
+/* Safari 必须带 -webkit- 前缀，否则毛玻璃不生效 */
+.reveal{-webkit-backdrop-filter:blur(4px)}
+/* Safari 的 100vh 含底部工具栏高度，KTV 面板用动态视口高度 */
+.ktv-game{max-height:96dvh}
 
