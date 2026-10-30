@@ -74,19 +74,55 @@ function pixelateUrl(url, callback) {
 }
 
 /* ---------- 状态 ---------- */
+/* ---------- 存档命名空间：同一台设备多人互不覆盖 ---------- */
+const PROFILE_KEY = 'pp_profile';
+const DEFAULT_PROFILE = '旅行者';
+/* 昵称只保留中英文数字下划线，最长 12 字；空值回退默认昵称 */
+function safeNs(raw) {
+  const s = String(raw == null ? '' : raw).trim().replace(/[^\w\u4e00-\u9fa5]/g, '').slice(0, 12);
+  return s || DEFAULT_PROFILE;
+}
+function currentNs() {
+  try { return safeNs(localStorage.getItem(PROFILE_KEY)); } catch (e) { return DEFAULT_PROFILE; }
+}
+function setNs(raw) {
+  const ns = safeNs(raw);
+  try { localStorage.setItem(PROFILE_KEY, ns); } catch (e) {}
+  return ns;
+}
+/* 存档键：pp_<昵称>_<字段>；昵称用 encodeURIComponent 避免中文/特殊字符出问题 */
+function sk(name) { return 'pp_' + encodeURIComponent(currentNs()) + '_' + name; }
+function adventureKey() { return 'adventure-progress-v3:' + encodeURIComponent(currentNs()); }
+
+/* 旧版单档数据（无昵称前缀）迁移到当前昵称下，避免升级后进度丢失 */
+(function migrateLegacySave() {
+  try {
+    const ns = currentNs();
+    ['photo', 'drawn', 'slots', 'team', 'team_8', 'beijing_done', 'banquet_done'].forEach(name => {
+      const oldKey = 'pp_' + name;
+      const val = localStorage.getItem(oldKey);
+      if (val == null) return;
+      const newKey = 'pp_' + encodeURIComponent(ns) + '_' + name;
+      if (localStorage.getItem(newKey) == null) localStorage.setItem(newKey, val);
+      localStorage.removeItem(oldKey);
+    });
+  } catch (e) { /* 隐私模式下 localStorage 被禁则跳过 */ }
+})();
+
+/* ---------- 状态 ---------- */
 const store = {
-  get photo() { return localStorage.getItem('pp_photo'); },
-  set photo(v) { v ? localStorage.setItem('pp_photo', v) : localStorage.removeItem('pp_photo'); },
+  get photo() { try { return localStorage.getItem(sk('photo')); } catch (e) { return null; } },
+  set photo(v) { try { v ? localStorage.setItem(sk('photo'), v) : localStorage.removeItem(sk('photo')); } catch (e) {} },
   /* 本地存档可能被手改或写坏，解析失败时回退空数组，避免整站初始化崩掉 */
   get drawn() {
     try {
-      const v = JSON.parse(localStorage.getItem('pp_drawn') || '[]');
+      const v = JSON.parse(localStorage.getItem(sk('drawn')) || '[]');
       return Array.isArray(v) ? v : [];
     } catch (e) { return []; }
   },
-  set drawn(v) { localStorage.setItem('pp_drawn', JSON.stringify(v)); },
-  get slots() { try { return JSON.parse(localStorage.getItem('pp_slots')); } catch { return null; } },
-  set slots(v) { localStorage.setItem('pp_slots', JSON.stringify(v)); },
+  set drawn(v) { try { localStorage.setItem(sk('drawn'), JSON.stringify(v)); } catch (e) {} },
+  get slots() { try { return JSON.parse(localStorage.getItem(sk('slots'))); } catch (e) { return null; } },
+  set slots(v) { try { localStorage.setItem(sk('slots'), JSON.stringify(v)); } catch (e) {} },
 };
 const state = { selectedChars: [], venue: null };
 
@@ -153,8 +189,10 @@ document.addEventListener('click', e => {
 });
 
 /* ---------- 场景 0：登录 ---------- */
+let pendingPhoto = null;          // 本次会话上传的照片，切换昵称时归到新昵称下
 function applyPhoto(url) {
-  try { store.photo = url; } catch (err) { /* 超出 localStorage 配额则只保留在内存 */ }
+  pendingPhoto = url;
+  try { store.photo = url; } catch (err) { /* 缩图后一般不会超配额，兜底仍只保留在内存 */ }
   const slot = document.getElementById('photo-slot');
   slot.classList.add('loading');
   setTimeout(() => {
@@ -170,10 +208,46 @@ photoInput.addEventListener('change', e => {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = () => {
-    // 直接使用玩家上传的原图，不做像素化处理
-    applyPhoto(reader.result);
+    const raw = reader.result;
+    const img = new Image();
+    img.onload = () => {
+      /* 手机原图动辄 3~5MB，base64 会膨胀 33%，直接存必然超 localStorage 5MB 配额；
+         这张图最终只画成 382×320 的像素画，先缩到最长边 640px 再转 JPEG 足够 */
+      const scale = Math.min(1, 640 / Math.max(img.width, img.height));
+      const cv = document.createElement('canvas');
+      cv.width = Math.max(1, Math.round(img.width * scale));
+      cv.height = Math.max(1, Math.round(img.height * scale));
+      cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+      let url = cv.toDataURL('image/jpeg', 0.82);
+      if (url.length > 400 * 1024) url = cv.toDataURL('image/jpeg', 0.6);  // 极端情况再压一档
+      applyPhoto(url);
+    };
+    img.onerror = () => applyPhoto(raw);  // 解码失败才退回原图
+    img.src = raw;
   };
   reader.readAsDataURL(file);
+});
+
+/* ---------- 昵称 = 独立存档 ---------- */
+const nicknameInput = document.getElementById('nickname-input');
+nicknameInput.value = currentNs();
+function resetPhotoSlot() {
+  pendingPhoto = null;
+  document.getElementById('photo-slot').innerHTML = '<span class="plus">+</span>';
+  document.getElementById('photo-hint').textContent = '上传照片 · 创建玩家';
+  document.getElementById('btn-enter').disabled = true;
+}
+nicknameInput.addEventListener('change', () => {
+  const prev = currentNs();
+  const ns = setNs(nicknameInput.value);
+  nicknameInput.value = ns;
+  if (ns === prev) return;
+  /* 切到已有存档：载入那个昵称的照片；切到新昵称：把刚上传的照片带过去 */
+  let saved = null;
+  try { saved = localStorage.getItem(sk('photo')); } catch (e) {}
+  if (saved) applyPhoto(saved);
+  else if (pendingPhoto) store.photo = pendingPhoto;
+  else resetPhotoSlot();
 });
 let gachaRulesShown = false;
 document.getElementById('btn-enter').addEventListener('click', () => {
@@ -264,10 +338,10 @@ function renderDeck() {
 
 /* ---------- 手拉手全员舞台 ---------- */
 const teamStore = {
-  get list() { try { return JSON.parse(localStorage.getItem('pp_team')) || []; } catch (e) { return []; } },
-  set list(v) { try { localStorage.setItem('pp_team', JSON.stringify(v)); } catch (e) {} },
-  get celebrated() { try { return localStorage.getItem('pp_team_8') === '1'; } catch (e) { return false; } },
-  set celebrated(v) { try { v ? localStorage.setItem('pp_team_8', '1') : localStorage.removeItem('pp_team_8'); } catch (e) {} },
+  get list() { try { return JSON.parse(localStorage.getItem(sk('team'))) || []; } catch (e) { return []; } },
+  set list(v) { try { localStorage.setItem(sk('team'), JSON.stringify(v)); } catch (e) {} },
+  get celebrated() { try { return localStorage.getItem(sk('team_8')) === '1'; } catch (e) { return false; } },
+  set celebrated(v) { try { v ? localStorage.setItem(sk('team_8'), '1') : localStorage.removeItem(sk('team_8')); } catch (e) {} },
 };
 /* 底部排排站：点击成员 = 踢出队伍；抽卡页与地图页共用同一支队伍 */
 function renderTeam(celebrate) {
@@ -489,8 +563,8 @@ document.querySelectorAll('.map-node').forEach(n => {
 });
 
 /* ---------- 关卡锁链状态 ---------- */
-function beijingDone() { try { return localStorage.getItem('pp_beijing_done') === '1'; } catch (e) { return false; } }
-function banquetDone() { try { return localStorage.getItem('pp_banquet_done') === '1'; } catch (e) { return false; } }
+function beijingDone() { try { return localStorage.getItem(sk('beijing_done')) === '1'; } catch (e) { return false; } }
+function banquetDone() { try { return localStorage.getItem(sk('banquet_done')) === '1'; } catch (e) { return false; } }
 function refreshMapLocks() {
   /* 关卡锁链：① 云南通关打勾 + 解锁 ② 北京；北京通关打勾；③ 寿宴礼成打勾 */
   refreshYunnanDone();
@@ -518,17 +592,17 @@ function renderBeijing() {
   });
 }
 document.getElementById('btn-beijing-done').addEventListener('click', () => {
-  try { localStorage.setItem('pp_beijing_done', '1'); } catch (e) {}
+  try { localStorage.setItem(sk('beijing_done'), '1'); } catch (e) {}
   Audio8bit.sfx.fanfare();
   refreshMapLocks();
   dialog.show({ title: '【解锁新关卡】', text: '坏女孩寿宴已开放——蛋糕正在路上！', okText: '出发', onOk: () => show('scene-map') });
 });
 
 /* ---------- 云南之旅 · 343像素冒险（iframe 隔离嵌入） ---------- */
-/* 游戏进度存 localStorage 'adventure-progress-v3'（同源共享，主站直接读取打勾） */
+/* 游戏进度按昵称隔离存储，键名与 adventure/game.js 保持一致 */
 function yunnanAllDone() {
   try {
-    const p = JSON.parse(localStorage.getItem('adventure-progress-v3'));
+    const p = JSON.parse(localStorage.getItem(adventureKey()));
     return !!(p && Array.isArray(p.completed) && p.completed.length >= 3);
   } catch (e) { return false; }
 }
@@ -537,7 +611,7 @@ function refreshYunnanDone() {
 }
 function startAdventure() {
   Audio8bit.stopBGM();               // 进游戏停主站 BGM，避免两套音乐打架
-  document.getElementById('adv-frame').src = 'adventure/index.html';
+  document.getElementById('adv-frame').src = 'adventure/index.html?ns=' + encodeURIComponent(currentNs());
   document.getElementById('adv-layer').classList.remove('hidden');
 }
 function closeAdventure() {
@@ -2526,16 +2600,18 @@ document.getElementById('family-input').addEventListener('change', e => {
 });
 document.getElementById('btn-back-map').addEventListener('click', () => {
   /* 寿宴走完（全家福后回地图）→ 礼成！地图节点打勾 */
-  try { localStorage.setItem('pp_banquet_done', '1'); } catch (e) {}
+  try { localStorage.setItem(sk('banquet_done'), '1'); } catch (e) {}
   refreshMapLocks();
   show('scene-map');
 });
 
 /* ---------- 初始化：支持 hash 直达，便于调试 ---------- */
 (function init() {
-  // ?reset=1 清除所有本地存档（含照片）
+  // ?reset=1 只清除当前昵称的存档，同一设备的其他人不受影响
   if (new URLSearchParams(location.search).get('reset')) {
-    ['pp_photo', 'pp_drawn', 'pp_slots', 'pp_muted', 'pp_team', 'pp_team_8', 'pp_beijing_done', 'pp_banquet_done'].forEach(k => localStorage.removeItem(k));
+    ['photo', 'drawn', 'slots', 'team', 'team_8', 'beijing_done', 'banquet_done'].forEach(n => localStorage.removeItem(sk(n)));
+    try { localStorage.removeItem(adventureKey()); } catch (e) {}
+    try { localStorage.removeItem('pp_muted'); } catch (e) {}
   }
   // 每次打开都重置抽卡进度（手拉手团队随之散伙、集齐庆祝重置），保留玩家照片
   store.drawn = [];

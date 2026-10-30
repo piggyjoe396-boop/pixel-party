@@ -7,7 +7,7 @@
 <title>坏女孩诞辰 ONLINE</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=59">
+<link rel="stylesheet" href="css/style.css?v=60">
 </head>
 <body>
 <div id="app">
@@ -23,6 +23,11 @@
         <div class="clouds"></div>
         <h1 class="game-title"><span id="title-text"></span><span class="cursor">▌</span></h1>
         <p class="game-sub">坏女孩诞辰 · 特别篇</p>
+        <label class="nickname-row" for="nickname-input">
+          <span class="nickname-tip">玩家昵称</span>
+          <input id="nickname-input" class="nickname-input" type="text" maxlength="12" placeholder="旅行者" autocomplete="off" spellcheck="false">
+        </label>
+        <p class="nickname-hint">换个昵称 = 一份独立存档</p>
         <label class="photo-upload" for="photo-input">
           <div class="photo-slot" id="photo-slot"><span class="plus">+</span></div>
           <p class="photo-hint" id="photo-hint">上传照片 · 创建玩家</p>
@@ -517,7 +522,7 @@
     <button class="adv-back" id="adv-back" title="返回坏女孩诞辰">✕</button>
   </div>
 </div>
-<script src="js/audio.js?v=59"></script>
-<script src="js/app.js?v=59"></script>
+<script src="js/audio.js?v=60"></script>
+<script src="js/app.js?v=60"></script>
 </body>
 </html>
