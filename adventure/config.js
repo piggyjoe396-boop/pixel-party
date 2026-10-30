@@ -81,10 +81,10 @@ window.ADVENTURE_CONFIG = {
             "scene": "banna-canopy"
           },
           "frame": [
-            423,
-            57,
-            387,
-            1164
+            268,
+            36,
+            245,
+            738
           ],
           "renderWidth": 36,
           "renderHeight": 62,
@@ -102,10 +102,10 @@ window.ADVENTURE_CONFIG = {
             "scene": "banna-jinuo"
           },
           "frame": [
-            23,
-            67,
-            1052,
-            1279
+            13,
+            37,
+            581,
+            707
           ],
           "renderWidth": 66,
           "renderHeight": 62,
@@ -133,10 +133,10 @@ window.ADVENTURE_CONFIG = {
         "label": "莎1-1",
         "flipX": true,
         "frame": [
-          356,
-          27,
-          361,
-          1380
+          197,
+          15,
+          199,
+          762
         ],
         "renderWidth": 34,
         "renderHeight": 62,
@@ -146,10 +146,10 @@ window.ADVENTURE_CONFIG = {
         "src": "assets/banna/莎1-1.png",
         "label": "莎1-1",
         "frame": [
-          356,
-          27,
-          361,
-          1380
+          197,
+          15,
+          199,
+          762
         ]
       },
       "friends": [
@@ -157,30 +157,30 @@ window.ADVENTURE_CONFIG = {
           "src": "assets/banna/终点1-1.png",
           "label": "终点1-1",
           "frame": [
-            400,
-            7,
-            581,
-            1236
+            255,
+            4,
+            371,
+            789
           ]
         },
         {
           "src": "assets/banna/终点1-2.png",
           "label": "终点1-2",
           "frame": [
-            414,
-            25,
-            385,
-            1232
+            256,
+            15,
+            238,
+            762
           ]
         },
         {
           "src": "assets/banna/终点1-3.png",
           "label": "终点1-3",
           "frame": [
-            336,
-            13,
-            697,
-            1223
+            214,
+            8,
+            445,
+            780
           ]
         }
       ],
@@ -217,10 +217,10 @@ window.ADVENTURE_CONFIG = {
             "scene": "puer-coffee"
           },
           "frame": [
-            282,
-            27,
-            890,
-            997
+            156,
+            15,
+            492,
+            551
           ],
           "renderWidth": 64,
           "renderHeight": 60
@@ -237,10 +237,10 @@ window.ADVENTURE_CONFIG = {
             "scene": "puer-old-street"
           },
           "frame": [
-            349,
-            6,
-            629,
-            1227
+            223,
+            4,
+            401,
+            783
           ],
           "renderWidth": 56,
           "renderHeight": 66,
@@ -269,10 +269,10 @@ window.ADVENTURE_CONFIG = {
         "src": "assets/puer/莎2-1.png",
         "label": "普洱初始形象 · 莎2-1",
         "frame": [
-          344,
-          43,
-          462,
-          1336
+          190,
+          24,
+          255,
+          738
         ],
         "renderWidth": 48,
         "renderHeight": 60
@@ -281,10 +281,10 @@ window.ADVENTURE_CONFIG = {
         "src": "assets/puer/莎2-1.png",
         "label": "普洱初始形象 · 莎2-1",
         "frame": [
-          344,
-          43,
-          462,
-          1336
+          190,
+          24,
+          255,
+          738
         ],
         "renderWidth": 48,
         "renderHeight": 60
@@ -295,20 +295,20 @@ window.ADVENTURE_CONFIG = {
           "src": "assets/puer/终点2-1.png",
           "label": "普洱终点伙伴 1",
           "frame": [
-            443,
-            37,
-            378,
-            1188
+            283,
+            24,
+            241,
+            758
           ]
         },
         {
           "src": "assets/puer/终点2-2.png",
           "label": "普洱终点伙伴 2",
           "frame": [
-            441,
-            32,
-            461,
-            1186
+            281,
+            20,
+            294,
+            757
           ]
         }
       ],
@@ -345,10 +345,10 @@ window.ADVENTURE_CONFIG = {
             "scene": "kunming-flowers"
           },
           "frame": [
-            89,
-            72,
-            775,
-            1326
+            49,
+            40,
+            428,
+            733
           ],
           "renderWidth": 64,
           "renderHeight": 62,
@@ -366,10 +366,10 @@ window.ADVENTURE_CONFIG = {
             "scene": "kunming-garden"
           },
           "frame": [
-            359,
-            42,
-            481,
-            1335
+            205,
+            24,
+            274,
+            761
           ],
           "renderWidth": 40,
           "renderHeight": 62,
@@ -397,10 +397,10 @@ window.ADVENTURE_CONFIG = {
         "label": "昆明初始英雄 · 花环装",
         "flipX": true,
         "frame": [
-          485,
-          5,
-          531,
-          1069
+          268,
+          3,
+          293,
+          591
         ],
         "renderWidth": 48,
         "renderHeight": 62,
@@ -410,10 +410,10 @@ window.ADVENTURE_CONFIG = {
         "src": "assets/kunming/莎3-2.png",
         "label": "莎3-2",
         "frame": [
-          485,
-          5,
-          531,
-          1069
+          268,
+          3,
+          293,
+          591
         ],
         "renderWidth": 48,
         "renderHeight": 62,
@@ -424,30 +424,30 @@ window.ADVENTURE_CONFIG = {
           "src": "assets/kunming/终点3-1.png",
           "label": "终点3-1",
           "frame": [
-            450,
-            54,
-            374,
-            1166
+            287,
+            34,
+            239,
+            744
           ]
         },
         {
           "src": "assets/kunming/终点3-2.png",
           "label": "终点3-2",
           "frame": [
-            178,
-            52,
-            958,
-            1161
+            114,
+            33,
+            611,
+            741
           ]
         },
         {
           "src": "assets/kunming/终点3-3.png",
           "label": "终点3-3",
           "frame": [
-            293,
-            90,
-            578,
-            1121
+            187,
+            57,
+            369,
+            715
           ]
         }
       ],
