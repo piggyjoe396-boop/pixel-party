@@ -640,8 +640,7 @@ const SHA24_PHOTOS = [
   { name: '二十三莎', text: '我喜欢我的小发卡！你们呢！我是庞二十三莎，谢谢大家！' },
   { name: '二十四莎', text: '我是庞小小莎，今年13岁了，不许拍我，我还没成年！' },
 ].map((p, i) => ({ ...p, src: `assets/beijing24/24-${String(i + 1).padStart(2, '0')}.jpg` }));
-const sha24 = { idx: -1, timer: null };
-function sha24Stop() { if (sha24.timer) { clearTimeout(sha24.timer); sha24.timer = null; } }
+const sha24 = { idx: -1 };
 function sha24Show(i) {
   const p = SHA24_PHOTOS[i];
   if (!p) return;
@@ -660,12 +659,6 @@ function sha24Show(i) {
   document.getElementById('btn-sha24-end').classList.toggle('hidden', i < SHA24_PHOTOS.length - 1);
   // 预取下一张，翻页时不会白屏
   if (SHA24_PHOTOS[i + 1]) { const pre = new Image(); pre.src = SHA24_PHOTOS[i + 1].src; }
-  sha24Stop();
-  /* 停留时长随文案长度变化：短文案约 3 秒，长文案最多 9 秒；
-     带「翻译」按钮的那张不自动翻页，等读者点完再手动翻 */
-  if (i < SHA24_PHOTOS.length - 1 && !p.translate) {
-    sha24.timer = setTimeout(sha24Next, Math.min(9000, 2400 + p.text.length * 110));
-  }
 }
 function sha24Next() {
   if (sha24.idx >= SHA24_PHOTOS.length - 1) return;
@@ -674,7 +667,6 @@ function sha24Next() {
   sha24Show(sha24.idx);
 }
 function openSha24() {
-  sha24Stop();
   Audio8bit.sfx.flip();
   sha24.idx = -1;
   document.getElementById('sha24-stage').classList.add('hidden');
@@ -692,7 +684,6 @@ function openSha24() {
   }, 2300);
 }
 function closeSha24() {
-  sha24Stop();
   document.getElementById('sha24-layer').classList.add('hidden');
 }
 document.getElementById('btn-sha24').addEventListener('click', openSha24);
