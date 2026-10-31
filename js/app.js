@@ -761,13 +761,15 @@ document.getElementById('btn-ktv-back').addEventListener('click', () => show('sc
     // 空中一定保持前进：跳跃时哪怕唱小声，也不会原地停住砸在障碍上
     if (!onGround) speedNow = Math.max(speedNow, 1.8);
     travel += speedNow;
-    cowEl.classList.toggle('run', speedNow > 0.15);
     // 高音才跳得起来
     if (level > thJump && onGround) { cowVY = -8.6; onGround = false; }
     if (!onGround) {
       cowVY += 0.5; cowY += cowVY;
       if (cowY >= 0) { cowY = 0; cowVY = 0; onGround = true; }
     }
+    // 只在落地时播跑步动画：.ktv-cow.run 的 keyframes 会覆盖内联 transform，
+    // 空中必须摘掉 run，否则 translateY(cowY) 被动画吃掉，牛看起来永远不跳
+    cowEl.classList.toggle('run', speedNow > 0.15 && onGround);
     // 碰撞：牛身矩形 vs 障碍矩形
     const sw = stage.clientWidth, cowCX = sw * COW_X + 20;
     for (const ob of obstacles) {
