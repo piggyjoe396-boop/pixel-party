@@ -2431,19 +2431,10 @@ document.getElementById('btn-chars-ok').addEventListener('click', () => {
 /* 步骤 3：生日致辞 · 顾里式 */
 let speechTimer = null;
 const SPEECH_LINES = [
-  '今天我们来到这里',
-  '是为了庆祝',
-  '我们共同的朋友',
-  '坏女孩的生日！',
-  '在这个特别的日子里',
-  '我谨代表343王国全体国民',
-  '向坏女孩致以最崇高的敬意',
-  '愿你新的一岁——',
-  '烦恼像王子的网速一样慢',
-  '快乐像吴皇的地位一样稳',
-  '智慧像国师的paper一样多',
-  '创意像坏女孩的鬼点子一样无穷',
-  '生日快乐！',
+  '今天我们欢聚在这里',
+  '是为了庆祝我们的小莎25岁生日',
+  '在这个特殊的日子',
+  '我们有些话想对她说：',
 ];
 function enterSpeech() {
   const audience = document.getElementById('speech-audience');
@@ -2469,7 +2460,7 @@ function enterSpeech() {
     }
     const line = SPEECH_LINES[li];
     const div = document.createElement('div');
-    div.className = 'speech-line' + (li === 3 || li === SPEECH_LINES.length - 1 ? ' highlight' : '');
+    div.className = 'speech-line' + (li === 1 ? ' highlight' : '');
     box.appendChild(div);
     setTimeout(() => div.classList.add('show'), 50);
     let ci = 0;
