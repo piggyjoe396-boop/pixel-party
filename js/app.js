@@ -612,6 +612,65 @@ function renderBeijing() {
     box.appendChild(el);
   });
 }
+/* ---------- 24莎 · 相册 ----------
+   文案按张确认后只需改 SHA24_PHOTOS[i].text，顺序即 24-01.jpg ~ 24-20.jpg */
+const SHA24_DWELL = 4200;
+const SHA24_PHOTOS = Array.from({ length: 20 }, (_, i) => ({
+  src: `assets/beijing24/24-${String(i + 1).padStart(2, '0')}.jpg`,
+  text: '（文案待填）',
+}));
+const sha24 = { idx: -1, timer: null };
+function sha24Stop() { if (sha24.timer) { clearTimeout(sha24.timer); sha24.timer = null; } }
+function sha24Show(i) {
+  const p = SHA24_PHOTOS[i];
+  if (!p) return;
+  const img = document.getElementById('sha24-img');
+  img.classList.remove('show');
+  const reveal = () => img.classList.add('show');
+  img.onload = reveal;
+  img.src = p.src;
+  if (img.complete && img.naturalWidth) setTimeout(reveal, 60);
+  document.getElementById('sha24-caption').textContent = p.text;
+  document.getElementById('sha24-count').textContent = `${i + 1} / ${SHA24_PHOTOS.length}`;
+  document.getElementById('btn-sha24-end').classList.toggle('hidden', i < SHA24_PHOTOS.length - 1);
+  // 预取下一张，翻页时不会白屏
+  if (SHA24_PHOTOS[i + 1]) { const pre = new Image(); pre.src = SHA24_PHOTOS[i + 1].src; }
+  sha24Stop();
+  if (i < SHA24_PHOTOS.length - 1) sha24.timer = setTimeout(sha24Next, SHA24_DWELL);
+}
+function sha24Next() {
+  if (sha24.idx >= SHA24_PHOTOS.length - 1) return;
+  sha24.idx++;
+  Audio8bit.sfx.tap();
+  sha24Show(sha24.idx);
+}
+function openSha24() {
+  sha24Stop();
+  Audio8bit.sfx.flip();
+  sha24.idx = -1;
+  document.getElementById('sha24-stage').classList.add('hidden');
+  document.getElementById('btn-sha24-end').classList.add('hidden');
+  const l1 = document.getElementById('sha24-line1'), l2 = document.getElementById('sha24-line2');
+  l1.classList.remove('show');
+  l2.classList.remove('show');
+  document.getElementById('sha24-layer').classList.remove('hidden');
+  setTimeout(() => l1.classList.add('show'), 200);
+  setTimeout(() => l2.classList.add('show'), 1100);
+  setTimeout(() => {
+    document.getElementById('sha24-stage').classList.remove('hidden');
+    sha24.idx = 0;
+    sha24Show(0);
+  }, 2300);
+}
+function closeSha24() {
+  sha24Stop();
+  document.getElementById('sha24-layer').classList.add('hidden');
+}
+document.getElementById('btn-sha24').addEventListener('click', openSha24);
+document.getElementById('sha24-close').addEventListener('click', closeSha24);
+document.getElementById('sha24-photo').addEventListener('click', sha24Next);
+document.getElementById('btn-sha24-end').addEventListener('click', closeSha24);
+
 document.getElementById('btn-beijing-done').addEventListener('click', () => {
   try { localStorage.setItem(sk('beijing_done'), '1'); } catch (e) {}
   Audio8bit.sfx.fanfare();

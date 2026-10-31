@@ -7,7 +7,7 @@
 <title>坏女孩诞辰 ONLINE</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=70">
+<link rel="stylesheet" href="css/style.css?v=71">
 </head>
 <body>
 <div id="app">
@@ -155,10 +155,32 @@
       <h2 class="panel-h">【北京重聚】</h2>
       <p class="panel-p">从西双版纳的雨林，到普洱的茶山，再到昆明的晚霞——<br>343主角团，北京到齐！</p>
       <div class="bj-lineup" id="bj-lineup"></div>
+      <div class="sha24-entry">
+        <p class="sha24-entry-sub">SIDE STORY · 24</p>
+        <h3 class="sha24-entry-title">24莎</h3>
+        <p class="panel-p">24莎，像野草一样野蛮生长，是生命力本能的迸发；<br>鲜衣怒马，像吞下了一整颗灼热的太阳！</p>
+        <button class="pixel-btn" id="btn-sha24">翻开 24 莎的相册</button>
+      </div>
       <p class="panel-p">接下来，还有一件大事等着大家。</p>
       <button class="pixel-btn" id="btn-beijing-done">完成重聚 · 前往坏女孩诞辰地图</button>
     </div></div>
   </section>
+
+  <!-- 24莎 · 相册浮层 -->
+  <div class="sha24-layer hidden" id="sha24-layer">
+    <button class="sha24-close" id="sha24-close" title="关闭">✕</button>
+    <div class="sha24-intro" id="sha24-intro">
+      <p class="sha24-line" id="sha24-line1">24莎，像野草一样野蛮生长，是生命力本能的迸发；</p>
+      <p class="sha24-line" id="sha24-line2">鲜衣怒马，像吞下了一整颗灼热的太阳！</p>
+    </div>
+    <div class="sha24-stage hidden" id="sha24-stage">
+      <div class="sha24-photo" id="sha24-photo"><img id="sha24-img" alt="24莎"></div>
+      <p class="sha24-caption" id="sha24-caption"></p>
+      <p class="sha24-count" id="sha24-count">1 / 20</p>
+      <p class="sha24-hint" id="sha24-hint">轻点照片，看下一张</p>
+      <button class="pixel-btn hidden" id="btn-sha24-end">看完了 · 返回</button>
+    </div>
+  </div>
 
   <!-- ========== 场景 4：坏女孩寿宴 ========== -->
   <section id="scene-banquet" class="scene">
@@ -530,7 +552,7 @@
     <button class="adv-back" id="adv-back" title="返回坏女孩诞辰">✕</button>
   </div>
 </div>
-<script src="js/audio.js?v=70"></script>
-<script src="js/app.js?v=70"></script>
+<script src="js/audio.js?v=71"></script>
+<script src="js/app.js?v=71"></script>
 </body>
 </html>
