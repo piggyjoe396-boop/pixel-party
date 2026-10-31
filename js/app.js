@@ -613,12 +613,33 @@ function renderBeijing() {
   });
 }
 /* ---------- 24莎 · 相册 ----------
-   文案按张确认后只需改 SHA24_PHOTOS[i].text，顺序即 24-01.jpg ~ 24-20.jpg */
-const SHA24_DWELL = 4200;
-const SHA24_PHOTOS = Array.from({ length: 20 }, (_, i) => ({
-  src: `assets/beijing24/24-${String(i + 1).padStart(2, '0')}.jpg`,
-  text: '（文案待填）',
-}));
+   文案按张确认后只需改 SHA24_PHOTOS[i]，顺序即 24-01.jpg ~ 24-24.jpg */
+const SHA24_PHOTOS = [
+  { name: '一莎', text: '绿色的貂皮是我的伪装，城市里打拼的辛苦，只有自己知道，笑一个吧！我是一莎！' },
+  { name: '二莎', text: '徒步游泳攀岩羽毛球瑜伽，balance女王就是我，我是二莎。' },
+  { name: '三莎', text: '皮衣在身，四姑娘山轻松拿下，就是这样冷酷，我是酷炫女王三莎！' },
+  { name: '四莎', text: '平时就喜欢搞点文艺生活，我和我的姐妹们就是城市中的文艺猎人，四处狩猎文艺场所。文质彬彬是我，我是四莎。' },
+  { name: '五莎', text: '黄色毛绒睡衣是我的经典皮肤，一大早起床便活力满满，这就是高能量的我，大家好，我是五莎！' },
+  { name: '六莎', text: '骑行的话，一般每周100km的样子，其实也不多，主要是锻炼锻炼身体，作为343退伍冰人，活活血罢了，我是六莎，事不宜迟，我要去骑车了。' },
+  { name: '七莎', text: 'marry me～～merry merry Christmas～我会把礼物放在每一个人的袜子里，我是七莎，活力宝宝就是我！' },
+  { name: '八莎', text: '大家好，我是八莎--时尚八莎，顾名思义，时尚，高冷，是我的代名词。' },
+  { name: '九莎', text: '大家好～～我是小懒莎莎～我懒但是，我可不笨！我是九莎，希望大家喜欢我！' },
+  { name: '十莎', text: '蓝天、白云，木栈道，我是喜欢的大自然的十莎！' },
+  { name: '十一莎', text: '这是前年跨年照片～我的中文不是很好～我是歪国仁～much love～i gonna sleep now～' },
+  { name: '十二莎', text: '穿着我最爱的红色毛衣，沐浴在花海中，我是十二莎，也是一名歌手。不要你离开～～～' },
+  { name: '十三莎', text: '嘿嘿嘿，谁能找到我，我就给她一个大大大的拥抱，我是十三莎！' },
+  { name: '十四莎', text: '本女侠常年游荡于江湖之中，见惯了打打闹闹，现退隐田园。爱好中国书法文化，背后就是我的作品，希望各位看官喜欢，十四莎正是在下。' },
+  { name: '十五莎', text: '大家好啊！！这是我和我的好姐妹们，我最喜欢的事情就是捉弄大家，鬼灵精怪的我，十五莎！！哇嘎嘎嘎嘎！！！咩咩咩叽叽叽呱呱呱呱汪汪汪～～～' },
+  { name: '十六莎', text: '平时就是喜欢做做饭，和家人在一起这样子，讲话就是有点机车哦。' },
+  { name: '十七莎', text: '你们好啊！刚刚下课就赶过来，听说要拍一个自我介绍哈哈，我叫庞十七莎，今年刚刚研一，平时喜欢拍拍照听听歌什么的，欢迎约我一起玩呀～' },
+  { name: '十八莎', text: '嘿嘿嘿，我是小呆十八莎，大家要多喝水，身体健康呀！爱你们！' },
+  { name: '十九莎', text: '嗯。好的。im killer -19 sha。sent me photo，i gonna work（说一些凶狠的话）' },
+  { name: '二十莎', text: '我是一个艺术家，专长作画，欢迎大家来我的画展，和我一起分享对艺术的体验。' },
+  { name: '二十一莎', text: '我是一个仙女，刚刚下凡，还不太适应，呜呜呜...我要回天庭，我blue了！！！！' },
+  { name: '二十二莎', text: '叽里咕噜叽里咕噜叽里咕噜叽里咕噜叽里咕噜', translate: '我要把你们都吃了' },
+  { name: '二十三莎', text: '我喜欢我的小发卡！你们呢！我是庞二十三莎，谢谢大家！' },
+  { name: '二十四莎', text: '我是庞小小莎，今年13岁了，不许拍我，我还没成年！' },
+].map((p, i) => ({ ...p, src: `assets/beijing24/24-${String(i + 1).padStart(2, '0')}.jpg` }));
 const sha24 = { idx: -1, timer: null };
 function sha24Stop() { if (sha24.timer) { clearTimeout(sha24.timer); sha24.timer = null; } }
 function sha24Show(i) {
@@ -630,13 +651,21 @@ function sha24Show(i) {
   img.onload = reveal;
   img.src = p.src;
   if (img.complete && img.naturalWidth) setTimeout(reveal, 60);
+  document.getElementById('sha24-name').textContent = p.name || '';
   document.getElementById('sha24-caption').textContent = p.text;
+  const trans = document.getElementById('sha24-translate');
+  trans.classList.toggle('hidden', !p.translate);
+  trans.disabled = false;
   document.getElementById('sha24-count').textContent = `${i + 1} / ${SHA24_PHOTOS.length}`;
   document.getElementById('btn-sha24-end').classList.toggle('hidden', i < SHA24_PHOTOS.length - 1);
   // 预取下一张，翻页时不会白屏
   if (SHA24_PHOTOS[i + 1]) { const pre = new Image(); pre.src = SHA24_PHOTOS[i + 1].src; }
   sha24Stop();
-  if (i < SHA24_PHOTOS.length - 1) sha24.timer = setTimeout(sha24Next, SHA24_DWELL);
+  /* 停留时长随文案长度变化：短文案约 3 秒，长文案最多 9 秒；
+     带「翻译」按钮的那张不自动翻页，等读者点完再手动翻 */
+  if (i < SHA24_PHOTOS.length - 1 && !p.translate) {
+    sha24.timer = setTimeout(sha24Next, Math.min(9000, 2400 + p.text.length * 110));
+  }
 }
 function sha24Next() {
   if (sha24.idx >= SHA24_PHOTOS.length - 1) return;
@@ -669,6 +698,13 @@ function closeSha24() {
 document.getElementById('btn-sha24').addEventListener('click', openSha24);
 document.getElementById('sha24-close').addEventListener('click', closeSha24);
 document.getElementById('sha24-photo').addEventListener('click', sha24Next);
+document.getElementById('sha24-translate').addEventListener('click', () => {
+  const p = SHA24_PHOTOS[sha24.idx];
+  if (!p || !p.translate) return;
+  document.getElementById('sha24-caption').textContent = p.translate;
+  document.getElementById('sha24-translate').classList.add('hidden');
+  Audio8bit.sfx.pop();
+});
 document.getElementById('btn-sha24-end').addEventListener('click', closeSha24);
 
 document.getElementById('btn-beijing-done').addEventListener('click', () => {

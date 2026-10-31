@@ -761,6 +761,8 @@ body{font-family:var(--px-font);color:var(--ink);background:var(--sky1)}
 .sha24-photo img.show{opacity:1}
 .sha24-caption{font-family:var(--px-font);font-size:11px;line-height:1.9;color:#f4e9d8;text-align:center;
   white-space:pre-wrap;max-width:320px;min-height:2em}
+.sha24-name{font-family:var(--px-font);font-style:normal;font-size:12px;color:#ffa8d6;letter-spacing:1px}
+.sha24-translate{font-size:9px!important;padding:7px 12px!important}
 .sha24-count{font-family:var(--px-font);font-size:9px;letter-spacing:1px;color:#9fb3e6}
 .sha24-hint{font-family:var(--px-font);font-size:8px;color:#7f8db8}
 
