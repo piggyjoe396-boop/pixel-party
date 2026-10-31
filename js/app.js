@@ -2589,13 +2589,22 @@ function showBlessing() {
   const last = blessIdx === total - 1;
   box.innerHTML =
     `<div class="bless-bubble"><b>${b.who}</b><span class="bless-text">${b.line}</span>`
-    + `<em class="bless-hint">${last ? '这是最后一封，点下面的按钮继续' : '轻点卡片，看下一位的祝福'}</em></div>`
+    + `<em class="bless-hint">${last ? '这是最后一封' : '读完点「下一位」'}</em></div>`
     + `<div class="bless-dots">${Array.from({ length: total }, (_, i) => `<i class="${i <= blessIdx ? 'on' : ''}"></i>`).join('')}</div>`;
   const card = box.querySelector('.bless-bubble');
   requestAnimationFrame(() => card.classList.add('show'));
-  if (last) document.getElementById('btn-bless-done').classList.remove('hidden');
+  document.getElementById('btn-bless-prev').disabled = blessIdx === 0;
+  document.getElementById('btn-bless-next').disabled = last;
+  document.getElementById('btn-bless-done').classList.toggle('hidden', !last);
 }
-document.getElementById('bless-bubbles').addEventListener('click', () => {
+/* 前后翻页：避免整块卡片可点时手滑跳过未读完的长信 */
+document.getElementById('btn-bless-prev').addEventListener('click', () => {
+  if (blessIdx <= 0) return;
+  blessIdx--;
+  Audio8bit.sfx.tap();
+  showBlessing();
+});
+document.getElementById('btn-bless-next').addEventListener('click', () => {
   if (blessIdx >= COPY.blessings.length - 1) return;
   blessIdx++;
   Audio8bit.sfx.tap();
