@@ -657,12 +657,20 @@ function sha24Show(i) {
   trans.disabled = false;
   document.getElementById('sha24-count').textContent = `${i + 1} / ${SHA24_PHOTOS.length}`;
   document.getElementById('btn-sha24-end').classList.toggle('hidden', i < SHA24_PHOTOS.length - 1);
+  document.getElementById('sha24-prev').disabled = i === 0;
+  document.getElementById('sha24-next').disabled = i === SHA24_PHOTOS.length - 1;
   // 预取下一张，翻页时不会白屏
   if (SHA24_PHOTOS[i + 1]) { const pre = new Image(); pre.src = SHA24_PHOTOS[i + 1].src; }
 }
 function sha24Next() {
   if (sha24.idx >= SHA24_PHOTOS.length - 1) return;
   sha24.idx++;
+  Audio8bit.sfx.tap();
+  sha24Show(sha24.idx);
+}
+function sha24Prev() {
+  if (sha24.idx <= 0) return;
+  sha24.idx--;
   Audio8bit.sfx.tap();
   sha24Show(sha24.idx);
 }
@@ -689,6 +697,8 @@ function closeSha24() {
 document.getElementById('btn-sha24').addEventListener('click', openSha24);
 document.getElementById('sha24-close').addEventListener('click', closeSha24);
 document.getElementById('sha24-photo').addEventListener('click', sha24Next);
+document.getElementById('sha24-prev').addEventListener('click', sha24Prev);
+document.getElementById('sha24-next').addEventListener('click', sha24Next);
 document.getElementById('sha24-translate').addEventListener('click', () => {
   const p = SHA24_PHOTOS[sha24.idx];
   if (!p || !p.translate) return;
