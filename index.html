@@ -7,7 +7,7 @@
 <title>坏女孩诞辰 ONLINE</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=66">
+<link rel="stylesheet" href="css/style.css?v=67">
 </head>
 <body>
 <div id="app">
@@ -360,9 +360,13 @@
         <span>小猪</span>
       </div>
 
-      <!-- 答对后：进入下一关 / 挑战成功 -->
-      <div class="ktk-next hidden" id="ktk-next">
-        <button class="pixel-btn" id="btn-ktk-next">进入下一关</button>
+      <!-- 答对后：每关先出一页通关话术，再进入下一关 / 入席 -->
+      <div class="ktk-clear hidden" id="ktk-clear">
+        <p class="ktk-clear-no" id="ktk-clear-no">第一关 · 通关</p>
+        <div class="ktk-clear-card">
+          <p class="ktk-clear-text" id="ktk-clear-text"></p>
+        </div>
+        <button class="pixel-btn" id="btn-ktk-clear">进入下一关</button>
       </div>
     </div>
 
@@ -522,7 +526,7 @@
     <button class="adv-back" id="adv-back" title="返回坏女孩诞辰">✕</button>
   </div>
 </div>
-<script src="js/audio.js?v=66"></script>
-<script src="js/app.js?v=66"></script>
+<script src="js/audio.js?v=67"></script>
+<script src="js/app.js?v=67"></script>
 </body>
 </html>

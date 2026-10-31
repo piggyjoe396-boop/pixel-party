@@ -1522,6 +1522,9 @@ const KTK_LEVELS = [
   {
     no: '一',
     melody: YU_AI_VERSE, bpm: 64,
+    clearText: `已经数不清我们一起去过多少次KTV，唱过多少次这首杨丞琳的《雨爱》，"听雨的声音，一滴滴清晰～"
+
+之前一直觉得和志趣相投的人一起唱K多幸福，两年过去了，现在只觉得，遇到同担不稀奇，遇到同好也不稀奇，遇到包容遇到理解遇到爱才是。现在脑海里已经缓缓飘进了小莎版本的《雨爱》，小子怡版本的jay chou全专，以及阿吴姑娘版本《写不完的温柔》......你们就是我心中的原唱！`,
     options: [
       { label: '雨鞋', note: '红楼梦里吴皇穿过的那双', correct: false },
       { label: '雨帽', note: '指一个透明塑料袋子',     correct: false },
@@ -1537,6 +1540,9 @@ const KTK_LEVELS = [
   {
     no: '二',
     melody: JIA_YOU_VERSE, bpm: 104,
+    clearText: `还记得你离开学校，去上海实习的第一周吗？多么难熬多么艰苦的一段时间啊，我们也都携手走过了；还记得JJ的北京演唱会吗？你说听这首歌时，你的泪水决堤,说这首歌带给了你前进的勇气...这首歌和我们寝室真实有缘呀，现在也希望这份勇气和好运同样眷顾我们的国师，就像那天她更新的动态一样～加油go！！
+
+那就别回头！前路漫漫，我们携手并肩。`,
     options: [
       { label: '加麻加辣不加葱！', correct: false },
       { label: '加宝！',           correct: false },
@@ -1552,6 +1558,7 @@ const KTK_LEVELS = [
   {
     no: '三',
     melody: A_CHU_VERSE, bpm: 95,
+    clearText: `莎，去年生日，你在北京，我们在成都，阿氏家族异地共创。一年过去了，这一年，你还好吗？一年过去了，我们还在～`,
     options: [
       { label: '阿莎姑娘', correct: true  },
       { label: '阿吴姑娘', correct: false },
@@ -1596,7 +1603,7 @@ function resetKtkRound() {
   stamp.className = 'ktk-stamp';
   stamp.textContent = '笨';
   ktkEl('ktk-bubble').classList.add('hidden');
-  ktkEl('ktk-next').classList.add('hidden');
+  ktkEl('ktk-clear').classList.add('hidden');
   ktkEl('ktk-pig').className = 'ktk-pig hidden';
   ktkEl('ktk-phone').classList.add('hidden');
   ktkEl('kph-contacts').classList.add('hidden');
@@ -1688,11 +1695,22 @@ function pickKtkOption(el, o) {
     stamp.className = 'ktk-stamp good show';
     ktkT(() => {
       stamp.classList.remove('show');
-      const last = ktk.level >= KTK_LEVELS.length - 1;
-      ktkEl('btn-ktk-next').textContent = last ? '挑战成功 · 去入席' : `进入第${KTK_LEVELS[ktk.level + 1].no}关`;
-      ktkEl('ktk-next').classList.remove('hidden');
+      showKtkClear();
     }, 1500);
   }
+}
+
+/* 答对后先出一页通关话术，读完再往下走 */
+function showKtkClear() {
+  const L = KTK_LEVELS[ktk.level];
+  const last = ktk.level >= KTK_LEVELS.length - 1;
+  ktkEl('ktk-clear-no').textContent = `第${L.no}关 · 通关`;
+  ktkEl('ktk-clear-text').textContent = L.clearText || '';
+  const card = ktkEl('ktk-clear').querySelector('.ktk-clear-card');
+  if (card) card.scrollTop = 0;
+  ktkEl('btn-ktk-clear').textContent = last ? '挑战成功 · 去入席' : `进入第${KTK_LEVELS[ktk.level + 1].no}关`;
+  ktkEl('ktk-clear').classList.remove('hidden');
+  Audio8bit.sfx.flip();
 }
 
 /* 三个技能：各限一次 */
@@ -1781,9 +1799,10 @@ document.querySelectorAll('.ktk-skill').forEach(btn => {
 });
 
 /* 下一关 / 三关全部通过 */
-ktkEl('btn-ktk-next').addEventListener('click', () => {
+ktkEl('btn-ktk-clear').addEventListener('click', advanceKtk);
+function advanceKtk() {
   Audio8bit.sfx.flip();
-  ktkEl('ktk-next').classList.add('hidden');
+  ktkEl('ktk-clear').classList.add('hidden');
   if (ktk.level >= KTK_LEVELS.length - 1) { closeKtkGame(); return; }
   // 关卡转场：复用 intro 层显示【第N关】
   ktkEl('ktk-pig').className = 'ktk-pig hidden';
@@ -1801,7 +1820,7 @@ ktkEl('btn-ktk-next').addEventListener('click', () => {
     ktk.phase = 'ready';
     Audio8bit.sfx.pop();
   }, 1600);
-});
+}
 
 /* 结束挑战，回到寿宴流程（入席） */
 function closeKtkGame() {

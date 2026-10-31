@@ -595,6 +595,19 @@ body{font-family:var(--px-font);color:var(--ink);background:var(--sky1)}
 .ktk-pig.run{animation:ktkPigRun 1.6s ease-in forwards}
 @keyframes ktkPigRun{0%{transform:translateX(0) rotate(0)}15%{transform:translateX(6px) rotate(8deg)}30%{transform:translateX(14px) rotate(-6deg)}45%{transform:translateX(24px) rotate(8deg)}100%{transform:translateX(min(90vw,420px)) rotate(14deg);opacity:.1}}
 
+/* 每关通关话术页：占满整屏、可滚动，长文不至于被裁 */
+.ktk-clear{position:fixed;inset:0;z-index:35;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  padding:calc(18px + var(--sat,0px)) 16px calc(18px + var(--sab,0px));overflow-y:auto;
+  background:radial-gradient(ellipse at 50% 30%,#2b3a67,#141b3d 70%,#0a0e24);animation:ktkClearIn .45s ease-out}
+.ktk-clear.hidden{display:none}
+@keyframes ktkClearIn{from{opacity:0}to{opacity:1}}
+.ktk-clear-no{font-family:var(--px-font);font-size:14px;color:#ffd76a;text-shadow:2px 2px 0 #5a3a00;letter-spacing:1px;flex:0 0 auto}
+.ktk-clear-card{width:min(100%,360px);max-height:calc(100vh - 210px);max-height:calc(100dvh - 210px);overflow-y:auto;
+  -webkit-overflow-scrolling:touch;background:#fdf6e3;border:4px solid #fff;border-radius:14px;
+  padding:16px 14px;box-shadow:0 8px 0 rgba(0,0,0,.35);flex:0 1 auto}
+.ktk-clear-text{font-family:var(--px-font);font-size:11px;line-height:2.1;color:#3a2a1a;white-space:pre-wrap;margin:0}
+.ktk-clear .pixel-btn{flex:0 0 auto;font-size:10px;padding:11px 18px}
+
 /* 场外求助：电话面板 */
 .ktk-phone{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;
   background:rgba(10,14,36,.72);backdrop-filter:blur(2px)}
