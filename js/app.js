@@ -17,9 +17,10 @@ const MAIN_IDS = CHARACTERS.filter(c => c.main).map(c => c.id);
 const COPY = {
   notFull: '人还没齐呢——坏女孩的寿宴，主角团少一个都算旷工。再去叫叫人？',
   blessings: [
-    { who: '王子', line: '愿你的新一岁，连乌云都镶着金边。' },
-    { who: '吴皇', line: '朕准你：往后年年，皆有今日之欢。' },
-    { who: '国师', line: '夜观星象，未来一年，大吉。' },
+    /* TODO 王子的祝福待用户提供，先占位 */
+    { who: '王子', line: '（王子的祝福 · 待补充）' },
+    { who: '吴皇', line: '详见昆明旅程回忆' },
+    { who: '国师', line: '亲爱的莎\n最近还好吗？24岁的你完成了人生角色的转换，从学校走到社会，变成可以独当一面的大人了。也许平常你还会想念学校吗，毕竟这里有你最爱的粿条和东三。不过没有关系，你也有咱正宗的老北京麦当劳儿，那叫个地道。\n今年你超越了全国75%的国民，已经踏上探索异国的道路了，本国师要封你为外交部部长，带领我们343去更多更远的地方完成邦交。\n25岁，好像并没有发生什么变化，除了数字的增长无法说明什么。希望你永远拥有大笑面对世界的勇气，继续做阳光开朗善良真诚的小莎吧！\n我在成都很想你。' },
   ],
   finalBless: '灯火会灭，蛋糕会吃完，\n但我们永远在。\n生日快乐，坏女孩！',
   yunnan: '云南之旅 · 场景建设中\nNEXT MISSION 敬请期待',
@@ -646,12 +647,13 @@ document.getElementById('btn-ktv-back').addEventListener('click', () => show('sc
         flashEl = $k('ktv-flash'), rainEl = $k('ktv-rain'), micIcon = $k('ktv-mic'),
         barEl = stage.parentElement.querySelector('.ktv-meter-bar'), fillEl = $k('ktv-meter-fill'),
         numEl = $k('ktv-level-num'), tipEl = $k('ktv-tip'), btnMic = $k('btn-ktv-mic'),
-        btnHold = $k('btn-ktv-hold'), btnJump = $k('btn-ktv-jump'), btnSkip = $k('btn-ktv-skip');
+        btnHold = $k('btn-ktv-hold'), btnJump = $k('btn-ktv-jump'), btnSkip = $k('btn-ktv-skip'),
+        floorEl = stage.querySelector('.ktv-floor');
   micIcon.classList.add('off');
   let stream = null, actx = null, analyser = null, data = null;
   let micOn = false, fallback = false, holding = false;
   let running = false, rafId = 0, state = 'idle';   // idle | playing | done
-  let travel = 0, cowY = 0, cowVY = 0, onGround = true, lastLyric = -1;
+  let travel = 0, cowY = 0, cowVY = 0, onGround = true, lastLyric = -1, speedNow = 0;
   let level = 0, noiseFloor = 2, thGo = 8, thJump = 30;
   let obstacles = [];
 
@@ -671,7 +673,7 @@ document.getElementById('btn-ktv-back').addEventListener('click', () => show('sc
     }
   }
   function resetGame() {
-    travel = 0; cowY = 0; cowVY = 0; onGround = true; lastLyric = -1;
+    travel = 0; cowY = 0; cowVY = 0; onGround = true; lastLyric = -1; speedNow = 0;
     rainEl.innerHTML = '';
     cowEl.classList.remove('run'); cowEl.style.transform = '';
     makeObstacles(); render();
@@ -708,7 +710,8 @@ document.getElementById('btn-ktv-back').addEventListener('click', () => show('sc
         if (performance.now() - t0 < 1000) return requestAnimationFrame(tick);
         noiseFloor = Math.max(2, samples.reduce((a, b) => a + b, 0) / samples.length * 1.4);
         thGo = noiseFloor * 2.2 + 3;
-        thJump = Math.max(thGo * 1.9, noiseFloor * 5 + 12);
+        /* 跳跃门槛下调：原来要喊到很高音才跳得起来，手机上很难触发 */
+        thJump = Math.max(thGo * 1.5, noiseFloor * 3.4 + 8);
         res();
       })();
     });
@@ -752,10 +755,13 @@ document.getElementById('btn-ktv-back').addEventListener('click', () => show('sc
     else level = 0;
     renderMeter();
     if (state !== 'playing') { rafId = requestAnimationFrame(loop); return; }
-    // 唱得越响跑得越快
-    const speed = level > thGo ? Math.min(3.6, 1.4 + (level - thGo) * 0.08) : 0;
-    travel += speed;
-    cowEl.classList.toggle('run', speed > 0);
+    // 唱得越响跑得越快；停唱后靠惯性滑行，不会瞬间刹停
+    const target = level > thGo ? Math.min(3.6, 1.4 + (level - thGo) * 0.08) : 0;
+    speedNow = Math.max(target, speedNow - 0.08);
+    // 空中一定保持前进：跳跃时哪怕唱小声，也不会原地停住砸在障碍上
+    if (!onGround) speedNow = Math.max(speedNow, 1.8);
+    travel += speedNow;
+    cowEl.classList.toggle('run', speedNow > 0.15);
     // 高音才跳得起来
     if (level > thJump && onGround) { cowVY = -8.6; onGround = false; }
     if (!onGround) {
@@ -783,7 +789,7 @@ document.getElementById('btn-ktv-back').addEventListener('click', () => show('sc
   function crash() {
     flashEl.classList.remove('on'); void flashEl.offsetWidth; flashEl.classList.add('on');
     try { Audio8bit.sfx.tap(); } catch (e) {}
-    travel = 0; cowY = 0; cowVY = 0; onGround = true; lastLyric = -1;
+    travel = 0; cowY = 0; cowVY = 0; onGround = true; lastLyric = -1; speedNow = 0;
     setTip('哎呀，撞上了！深呼吸，从头再唱一遍《小狗毛之歌》～');
     render();
     rafId = requestAnimationFrame(loop);
@@ -804,6 +810,7 @@ document.getElementById('btn-ktv-back').addEventListener('click', () => show('sc
   }
   function render() {
     const sw = stage.clientWidth, base = sw * COW_X + 56;
+    floorEl.style.backgroundPositionX = `${-travel % 36}px`;   // 地面条纹滚动，肉眼可见地往前走
     for (const ob of obstacles) {
       const ox = base + (ob.x - travel);
       ob.el.style.transform = `translateX(${ox}px)`;
@@ -841,7 +848,7 @@ document.getElementById('btn-ktv-back').addEventListener('click', () => show('sc
     btnMic.hidden = false; btnMic.disabled = false;
     btnMic.textContent = '🎤 开麦 · 演唱《小狗毛之歌》';
     btnHold.hidden = true; btnJump.hidden = true;
-    travel = 0; cowY = 0; cowVY = 0; onGround = true; lastLyric = -1;
+    travel = 0; cowY = 0; cowVY = 0; onGround = true; lastLyric = -1; speedNow = 0;
     rainEl.innerHTML = '';
     cowEl.classList.remove('run'); cowEl.style.transform = '';
     lyricEl.textContent = '♪ 准备开嗓 ♪';
@@ -2536,20 +2543,32 @@ document.getElementById('btn-lights-off').addEventListener('click', () => {
   playBlessings();
 });
 
-/* 步骤 5：关灯祝福（王子→皇帝→国师） */
+/* 步骤 5：关灯祝福（王子→吴皇→国师）
+   一次只出现一位的祝福，点卡片翻到下一位，避免长文案挤成一屏 */
+let blessIdx = 0;
 function playBlessings() {
-  const box = document.getElementById('bless-bubbles');
-  box.innerHTML = '';
+  blessIdx = 0;
   document.getElementById('btn-bless-done').classList.add('hidden');
-  COPY.blessings.forEach((b, i) => {
-    const div = document.createElement('div');
-    div.className = 'bless-bubble';
-    div.innerHTML = `<b>${b.who}</b>${b.line}`;
-    box.appendChild(div);
-    setTimeout(() => div.classList.add('show'), 800 * (i + 1));
-  });
-  setTimeout(() => document.getElementById('btn-bless-done').classList.remove('hidden'), 800 * COPY.blessings.length + 600);
+  showBlessing();
 }
+function showBlessing() {
+  const box = document.getElementById('bless-bubbles');
+  const total = COPY.blessings.length, b = COPY.blessings[blessIdx];
+  const last = blessIdx === total - 1;
+  box.innerHTML =
+    `<div class="bless-bubble"><b>${b.who}</b><span class="bless-text">${b.line}</span>`
+    + `<em class="bless-hint">${last ? '这是最后一封，点下面的按钮继续' : '轻点卡片，看下一位的祝福'}</em></div>`
+    + `<div class="bless-dots">${Array.from({ length: total }, (_, i) => `<i class="${i <= blessIdx ? 'on' : ''}"></i>`).join('')}</div>`;
+  const card = box.querySelector('.bless-bubble');
+  requestAnimationFrame(() => card.classList.add('show'));
+  if (last) document.getElementById('btn-bless-done').classList.remove('hidden');
+}
+document.getElementById('bless-bubbles').addEventListener('click', () => {
+  if (blessIdx >= COPY.blessings.length - 1) return;
+  blessIdx++;
+  Audio8bit.sfx.tap();
+  showBlessing();
+});
 document.getElementById('btn-bless-done').addEventListener('click', () => banquetStep('letter'));
 
 /* 步骤 6：许愿信（拆→折→封蜡→飞走） */

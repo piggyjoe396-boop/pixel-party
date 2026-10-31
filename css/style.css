@@ -199,7 +199,9 @@ body{font-family:var(--px-font);color:var(--ink);background:var(--sky1)}
 .ktv-h{font-family:var(--px-font);font-size:13px;color:#ffd76a;text-shadow:0 0 8px #ff6ad5,2px 2px 0 #5a2a8a;margin-bottom:2px}
 .ktv-stage{position:relative;width:100%;height:38vh;min-height:230px;max-height:330px;overflow:hidden;border:3px solid #c5a868;border-radius:10px;
   background:linear-gradient(180deg,#12082a 0%,#2b1055 46%,#3d1d6e 54%,#1b0f38 100%);box-shadow:0 0 24px rgba(255,106,213,.25),inset 0 0 30px rgba(0,0,0,.5)}
-.ktv-floor{position:absolute;left:0;right:0;bottom:26px;height:3px;background:#ff6ad5;box-shadow:0 0 8px #ff6ad5}
+/* 地面用重复条纹，靠 background-position 滚动来表现"在往前走" */
+.ktv-floor{position:absolute;left:0;right:0;bottom:26px;height:3px;box-shadow:0 0 8px #ff6ad5;
+  background:repeating-linear-gradient(90deg,#ff6ad5 0 18px,rgba(255,106,213,.18) 18px 36px)}
 .ktv-lyric{position:absolute;top:8px;left:0;right:0;text-align:center;font-family:var(--px-font);font-size:13px;color:#ffd76a;
   text-shadow:0 0 6px #ff6ad5,2px 2px 0 #5a2a8a;z-index:2;white-space:nowrap}
 .ktv-lyric.pulse{animation:ktvPulse .5s ease}
@@ -361,11 +363,18 @@ body{font-family:var(--px-font);color:var(--ink);background:var(--sky1)}
 .dark-room{position:absolute;inset:0;background:#0a0e24;z-index:0}
 .candle-glow{position:absolute;bottom:18%;left:50%;transform:translateX(-50%);width:120px;height:120px;border-radius:50%;
   background:radial-gradient(circle,rgba(255,190,80,.8),transparent 70%);animation:flick .4s steps(2) infinite}
-.bless-bubbles{position:relative;z-index:2;display:flex;flex-direction:column;gap:14px;width:100%;max-width:320px}
+.bless-bubbles{position:relative;z-index:2;display:flex;flex-direction:column;gap:14px;width:100%;max-width:320px;
+  max-height:min(62vh,480px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;cursor:pointer}
 .bless-bubble{background:var(--panel-blue);border:3px solid #fff;border-radius:12px;padding:12px;font-size:10px;line-height:1.8;opacity:0;transform:translateY(20px) scale(.8);transition:all .4s cubic-bezier(.34,1.56,.64,1)}
 .bless-bubble.show{opacity:1;transform:none;animation:bubbleBounce .5s cubic-bezier(.34,1.56,.64,1)}
 @keyframes bubbleBounce{0%{transform:translateY(20px) scale(.6);opacity:0}60%{transform:translateY(-6px) scale(1.05)}100%{transform:none;opacity:1}}
 .bless-bubble b{display:block;font-size:9px;color:#ffd866;margin-bottom:4px}
+/* 国师的祝福是长信，保留换行、卡片内可滚动 */
+.bless-text{display:block;white-space:pre-wrap;word-break:break-word;text-align:left}
+.bless-hint{display:block;margin-top:8px;font-size:9px;font-style:normal;color:#9fb3e6;text-align:center}
+.bless-dots{display:flex;gap:6px;justify-content:center;padding-top:2px}
+.bless-dots i{width:8px;height:8px;background:rgba(255,255,255,.25);outline:2px solid #fff}
+.bless-dots i.on{background:#ffd866}
 .bstep[data-step="bless"] .pixel-btn{position:relative;z-index:2}
 
 /* 许愿信 */
